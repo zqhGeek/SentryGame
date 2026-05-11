@@ -2,9 +2,9 @@ namespace SentryGame.Common
 {
     public static class GameSceneNames
     {
-        public const string Login = "LoginScene";
-        public const string ModeSelect = "ModeSelectScene";
-        public const string WhackAMole = "WhackAMoleScene";
-        public const string Snake = "SnakeScene";
+        public const string LoginScene = "LoginScene";
+        public const string ModeSelectScene = "ModeSelectScene";
+        public const string WhackAMoleScene = "WhackAMoleScene";
+        public const string SnakeScene = "SnakeScene";
     }
 }

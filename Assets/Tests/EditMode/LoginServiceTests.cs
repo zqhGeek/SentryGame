@@ -17,5 +17,14 @@ namespace SentryGame.Tests
             Assert.IsFalse(LoginService.Validate("admin", "wrong"));
             Assert.IsFalse(LoginService.Validate("guest", "123456"));
         }
+
+        [Test]
+        public void SceneNames_ReturnExpectedSceneNames()
+        {
+            Assert.AreEqual("LoginScene", GameSceneNames.LoginScene);
+            Assert.AreEqual("ModeSelectScene", GameSceneNames.ModeSelectScene);
+            Assert.AreEqual("WhackAMoleScene", GameSceneNames.WhackAMoleScene);
+            Assert.AreEqual("SnakeScene", GameSceneNames.SnakeScene);
+        }
     }
 }
