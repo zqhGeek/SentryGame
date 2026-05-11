@@ -63,18 +63,20 @@ namespace SentryGame.Editor
 
         private static void BuildWhackAMoleScene()
         {
-            // 创建打地鼠场景的分数、状态、玩法区域、红点按钮和返回按钮。
+            // 创建打地鼠场景的统计条、状态、玩法区域、红点按钮、重开按钮和返回按钮。
             var scene = CreateBaseScene();
             var canvas = CreateCanvas();
             var controller = new GameObject(nameof(WhackAMoleSceneController)).AddComponent<WhackAMoleSceneController>();
+            CreatePanel(canvas.transform, "ScorePanel", new Vector2(0f, 770f), new Vector2(860f, 120f), new Color(0.86f, 0.91f, 0.96f));
             var score = CreateText(canvas.transform, "分数：5", new Vector2(0f, 760f), new Vector2(760f, 80f), 42);
             var status = CreateText(canvas.transform, string.Empty, new Vector2(0f, 650f), new Vector2(760f, 80f), 38);
             var playArea = CreatePanel(canvas.transform, "PlayArea", new Vector2(0f, 130f), new Vector2(860f, 980f), new Color(0.92f, 0.95f, 0.98f));
             var mole = CreateCircleButton(playArea.transform, "Mole", new Vector2(0f, 0f), new Vector2(130f, 130f), new Color(0.9f, 0.08f, 0.08f));
-            var back = CreateButton(canvas.transform, "返回", new Vector2(0f, -700f), new Vector2(420f, 100f));
+            var restart = CreateButton(canvas.transform, "重新开始", new Vector2(-230f, -700f), new Vector2(360f, 100f));
+            var back = CreateButton(canvas.transform, "返回", new Vector2(230f, -700f), new Vector2(360f, 100f));
 
             status.color = new Color(0.82f, 0.12f, 0.12f);
-            Bind(controller, ("scoreText", score), ("statusText", status), ("playArea", playArea), ("moleImage", mole.GetComponent<Image>()), ("moleButton", mole), ("backButton", back));
+            Bind(controller, ("scoreText", score), ("statusText", status), ("playArea", playArea), ("moleImage", mole.GetComponent<Image>()), ("moleButton", mole), ("restartButton", restart), ("backButton", back));
             SaveScene(scene, GameSceneNames.WhackAMoleScene);
         }
 

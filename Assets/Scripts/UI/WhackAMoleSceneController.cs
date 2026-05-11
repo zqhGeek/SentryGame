@@ -15,12 +15,14 @@ namespace SentryGame.UI
         [SerializeField] private RectTransform playArea = null;
         [SerializeField] private Image moleImage = null;
         [SerializeField] private Button moleButton = null;
+        [SerializeField] private Button restartButton = null;
         [SerializeField] private Button backButton = null;
 
         private WhackAMoleGameModel model;
 
         private void Awake()
         {
+            // 绑定红点、重开和返回按钮，确保场景引用或运行时补齐的 UI 都能响应点击。
             EnsureReferences();
             if (moleButton != null)
             {
@@ -31,13 +33,16 @@ namespace SentryGame.UI
             {
                 backButton.onClick.AddListener(ReturnToModeSelect);
             }
+
+            if (restartButton != null)
+            {
+                restartButton.onClick.AddListener(RestartGame);
+            }
         }
 
         private void Start()
         {
-            model = new WhackAMoleGameModel(InitialScore);
-            SpawnMole();
-            RefreshView();
+            RestartGame();
         }
 
         private void Update()
@@ -75,6 +80,13 @@ namespace SentryGame.UI
         public void ReturnToModeSelect()
         {
             SceneLoader.LoadScene(GameSceneNames.ModeSelectScene);
+        }
+
+        public void RestartGame()
+        {
+            model = new WhackAMoleGameModel(InitialScore);
+            SpawnMole();
+            RefreshView();
         }
 
         private void SpawnMole()
@@ -116,12 +128,13 @@ namespace SentryGame.UI
         private void EnsureReferences()
         {
             // 当场景只包含控制器时，运行时创建打地鼠界面。
-            if (scoreText != null && statusText != null && playArea != null && moleImage != null && moleButton != null && backButton != null)
+            if (scoreText != null && statusText != null && playArea != null && moleImage != null && moleButton != null && restartButton != null && backButton != null)
             {
                 return;
             }
 
             var canvas = RuntimeUiFactory.EnsureCanvas();
+            RuntimeUiFactory.CreatePanel(canvas.transform, "ScorePanel", new Vector2(0f, 770f), new Vector2(860f, 120f), new Color(0.86f, 0.91f, 0.96f));
             scoreText = RuntimeUiFactory.CreateText(canvas.transform, "ScoreText", "分数：5", new Vector2(0f, 760f), new Vector2(760f, 80f), 42);
             statusText = RuntimeUiFactory.CreateText(canvas.transform, "StatusText", string.Empty, new Vector2(0f, 650f), new Vector2(760f, 80f), 38);
             statusText.color = new Color(0.82f, 0.12f, 0.12f);
@@ -129,7 +142,8 @@ namespace SentryGame.UI
             moleImage = RuntimeUiFactory.CreateImage(playArea, "Mole", Vector2.zero, new Vector2(130f, 130f), new Color(0.9f, 0.08f, 0.08f));
             moleButton = moleImage.gameObject.AddComponent<Button>();
             moleButton.targetGraphic = moleImage;
-            backButton = RuntimeUiFactory.CreateButton(canvas.transform, "返回", new Vector2(0f, -700f), new Vector2(420f, 100f));
+            restartButton = RuntimeUiFactory.CreateButton(canvas.transform, "重新开始", new Vector2(-230f, -700f), new Vector2(360f, 100f));
+            backButton = RuntimeUiFactory.CreateButton(canvas.transform, "返回", new Vector2(230f, -700f), new Vector2(360f, 100f));
         }
     }
 }

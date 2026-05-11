@@ -54,6 +54,7 @@ namespace SentryGame.Tests.EditMode
             Assert.IsNotNull(typeof(SentryGame.UI.LoginSceneController).GetMethod("OnLoginClicked"));
             Assert.IsNotNull(typeof(SentryGame.UI.ModeSelectSceneController).GetMethod("OpenWhackAMole"));
             Assert.IsNotNull(typeof(SentryGame.UI.WhackAMoleSceneController).GetMethod("HitMole"));
+            Assert.IsNotNull(typeof(SentryGame.UI.WhackAMoleSceneController).GetMethod("RestartGame"));
             Assert.IsNotNull(typeof(SentryGame.UI.SnakeSceneController).GetMethod("ReturnToModeSelect"));
         }
 
@@ -64,6 +65,18 @@ namespace SentryGame.Tests.EditMode
 
             StringAssert.Contains("UnityEngine.EventSystems.StandaloneInputModule", sceneText);
             StringAssert.DoesNotContain("UnityEngine.InputSystem.UI.InputSystemUIInputModule", sceneText);
+        }
+
+        [Test]
+        public void WhackAMoleSceneShowsScoreAndRestartControls()
+        {
+            var sceneText = File.ReadAllText($"Assets/Scenes/{GameSceneNames.WhackAMoleScene}.unity");
+
+            StringAssert.Contains("scoreText: {fileID:", sceneText);
+            StringAssert.Contains("restartButton: {fileID:", sceneText);
+            StringAssert.Contains(@"\u5206\u6570\uFF1A5", sceneText);
+            StringAssert.Contains(@"\u91CD\u65B0\u5F00\u59CB", sceneText);
+            StringAssert.Contains("m_Name: ScorePanel", sceneText);
         }
     }
 }
