@@ -42,7 +42,7 @@
 - 禁止横屏自动旋转。
 - Canvas 参考分辨率：`1080x1920`。
 - Android 包名：`com.sentrygame.mobile`。
-- 输入处理：Input Manager（旧输入系统），场景事件系统使用旧版 `StandaloneInputModule`，保证 UGUI 输入框在 Editor 和 Android 上都能接收账号密码文本，并避免 Android 上启用 Both 产生的输入警告。
+- 输入处理：Input Manager（旧输入系统），场景事件系统使用旧版 `StandaloneInputModule`，保证 UGUI 输入框在 Editor 和 Android 上都能接收账号密码文本。项目不安装新 Input System 包，避免 Android 上启用 Both 或新输入后端产生的输入警告。
 
 Android 打包需要安装 Unity Android Build Support，并配置可用的 Android SDK、NDK 和 JDK。建议在真机上验证按钮触控、屏幕比例和安全区域表现。
 

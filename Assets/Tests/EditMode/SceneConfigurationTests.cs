@@ -28,9 +28,11 @@ namespace SentryGame.Tests.EditMode
         public void AndroidUsesLegacyInputManagerOnly()
         {
             var projectSettingsText = File.ReadAllText("ProjectSettings/ProjectSettings.asset");
+            var packageManifestText = File.ReadAllText("Packages/manifest.json");
 
             StringAssert.Contains("activeInputHandler: 0", projectSettingsText);
             StringAssert.DoesNotContain("activeInputHandler: 2", projectSettingsText);
+            StringAssert.DoesNotContain("com.unity.inputsystem", packageManifestText);
         }
 
         [TestCase(GameSceneNames.LoginScene, nameof(SentryGame.UI.LoginSceneController))]
