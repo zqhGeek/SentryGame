@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using SentryGame.Common;
 using SentryGame.Snake;
@@ -57,7 +56,7 @@ namespace SentryGame.UI
             model.Step();
             if (model.NeedsFood)
             {
-                model.SetFood(FindRandomEmptyCell());
+                TryPlaceNextFood();
             }
 
             Render();
@@ -131,9 +130,9 @@ namespace SentryGame.UI
             }
         }
 
-        private GridPoint FindRandomEmptyCell()
+        private bool TryPlaceNextFood()
         {
-            // 从所有空格中随机选择食物位置，避免生成到蛇身上。
+            // 从所有空格中随机选择食物位置；如果蛇已经占满地图，则以游戏结束处理。
             var occupied = new HashSet<GridPoint>(model.Body);
             var emptyCells = new List<GridPoint>();
             for (var y = 0; y < height; y += 1)
@@ -148,12 +147,14 @@ namespace SentryGame.UI
                 }
             }
 
-            if (emptyCells.Count == 0)
+            if (emptyCells.Count <= 0)
             {
-                throw new InvalidOperationException("没有可放置食物的空格。");
+                statusText.text = "游戏结束";
+                return false;
             }
 
-            return emptyCells[random.Next(emptyCells.Count)];
+            model.SetFood(emptyCells[random.Next(emptyCells.Count)]);
+            return true;
         }
 
         private void Render()

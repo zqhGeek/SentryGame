@@ -6,6 +6,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -131,6 +132,7 @@ namespace SentryGame.Editor
             var eventSystem = new GameObject("EventSystem");
             eventSystem.AddComponent<EventSystem>();
             eventSystem.AddComponent<StandaloneInputModule>();
+            eventSystem.AddComponent<InputSystemUIInputModule>();
         }
 
         private static Text CreateText(Transform parent, string text, Vector2 position, Vector2 size, int fontSize)

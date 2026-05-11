@@ -2,7 +2,8 @@
     "name": "SentryGame.Runtime",
     "rootNamespace": "",
     "references": [
-        "UnityEngine.UI"
+        "UnityEngine.UI",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

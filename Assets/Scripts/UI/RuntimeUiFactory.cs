@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 namespace SentryGame.UI
@@ -90,6 +91,7 @@ namespace SentryGame.UI
 
         private static void EnsureEventSystem()
         {
+            // 创建兼容新旧输入系统的事件系统，确保 Editor 和 Android 触控都能点击 UGUI。
             if (Object.FindObjectOfType<EventSystem>() != null)
             {
                 return;
@@ -98,6 +100,7 @@ namespace SentryGame.UI
             var eventSystem = new GameObject("EventSystem");
             eventSystem.AddComponent<EventSystem>();
             eventSystem.AddComponent<StandaloneInputModule>();
+            eventSystem.AddComponent<InputSystemUIInputModule>();
         }
     }
 }

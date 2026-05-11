@@ -41,6 +41,8 @@
 - 默认屏幕方向：Portrait。
 - 禁止横屏自动旋转。
 - Canvas 参考分辨率：`1080x1920`。
+- Android 包名：`com.sentrygame.mobile`。
+- 输入处理：Both，兼容旧输入模块和新 Input System UI 模块。
 
 Android 打包需要安装 Unity Android Build Support，并配置可用的 Android SDK、NDK 和 JDK。建议在真机上验证按钮触控、屏幕比例和安全区域表现。
 
