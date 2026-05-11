@@ -56,5 +56,14 @@ namespace SentryGame.Tests.EditMode
             Assert.IsNotNull(typeof(SentryGame.UI.WhackAMoleSceneController).GetMethod("HitMole"));
             Assert.IsNotNull(typeof(SentryGame.UI.SnakeSceneController).GetMethod("ReturnToModeSelect"));
         }
+
+        [Test]
+        public void LoginSceneUsesLegacyInputModuleForInputFieldText()
+        {
+            var sceneText = File.ReadAllText($"Assets/Scenes/{GameSceneNames.LoginScene}.unity");
+
+            StringAssert.Contains("UnityEngine.EventSystems.StandaloneInputModule", sceneText);
+            StringAssert.DoesNotContain("UnityEngine.InputSystem.UI.InputSystemUIInputModule", sceneText);
+        }
     }
 }
