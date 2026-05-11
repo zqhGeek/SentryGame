@@ -36,15 +36,18 @@ namespace SentryGame.Tests.EditMode
         }
 
         [Test]
-        public void AndroidUsesUpsideDownPortraitOrientation()
+        public void AndroidUsesPortraitSettingsWithManifestReversePortraitPatch()
         {
             var projectSettingsText = File.ReadAllText("ProjectSettings/ProjectSettings.asset");
+            var manifestPostProcessorText = File.ReadAllText("Assets/Editor/AndroidManifestOrientationPostProcessor.cs");
 
-            StringAssert.Contains("defaultScreenOrientation: 2", projectSettingsText);
-            StringAssert.Contains("allowedAutorotateToPortrait: 0", projectSettingsText);
-            StringAssert.Contains("allowedAutorotateToPortraitUpsideDown: 1", projectSettingsText);
+            StringAssert.Contains("defaultScreenOrientation: 1", projectSettingsText);
+            StringAssert.Contains("allowedAutorotateToPortrait: 1", projectSettingsText);
+            StringAssert.Contains("allowedAutorotateToPortraitUpsideDown: 0", projectSettingsText);
             StringAssert.Contains("allowedAutorotateToLandscapeRight: 0", projectSettingsText);
             StringAssert.Contains("allowedAutorotateToLandscapeLeft: 0", projectSettingsText);
+            StringAssert.Contains("reversePortrait", manifestPostProcessorText);
+            StringAssert.Contains("UnityPlayerGameActivity", manifestPostProcessorText);
         }
 
         [TestCase(GameSceneNames.LoginScene, nameof(SentryGame.UI.LoginSceneController))]
