@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using SentryGame.Common;
 using SentryGame.Snake;
@@ -58,6 +59,39 @@ namespace SentryGame.Tests
             model.Step();
 
             Assert.AreEqual(GameState.GameOver, model.State);
+        }
+
+        [Test]
+        public void Step_AllowsMovingIntoPreviousTail_WhenNotGrowing()
+        {
+            var body = new[] { new GridPoint(2, 2), new GridPoint(2, 3), new GridPoint(1, 3), new GridPoint(1, 2) };
+            var model = new SnakeGameModel(6, 6, body, new GridPoint(5, 5), SnakeDirection.Left);
+
+            model.Step();
+
+            Assert.AreEqual(GameState.Running, model.State);
+            Assert.AreEqual(new GridPoint(1, 2), model.Head);
+            Assert.AreEqual(4, model.Body.Count);
+        }
+
+        [Test]
+        public void Body_DoesNotExposeMutableList()
+        {
+            var model = new SnakeGameModel(10, 10, new[] { new GridPoint(3, 3) }, new GridPoint(5, 5), SnakeDirection.Right);
+
+            Assert.IsFalse(model.Body is List<GridPoint>);
+        }
+
+        [Test]
+        public void SetFood_ClearsNeedsFood()
+        {
+            var model = new SnakeGameModel(10, 10, new[] { new GridPoint(3, 3) }, new GridPoint(4, 3), SnakeDirection.Right);
+            model.Step();
+
+            model.SetFood(new GridPoint(5, 5));
+
+            Assert.IsFalse(model.NeedsFood);
+            Assert.AreEqual(new GridPoint(5, 5), model.Food);
         }
 
         [Test]

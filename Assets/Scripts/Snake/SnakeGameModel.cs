@@ -7,6 +7,7 @@ namespace SentryGame.Snake
     public sealed class SnakeGameModel
     {
         private readonly List<GridPoint> body;
+        private readonly IReadOnlyList<GridPoint> readOnlyBody;
 
         public SnakeGameModel(int width, int height, IEnumerable<GridPoint> initialBody, GridPoint food, SnakeDirection initialDirection)
         {
@@ -29,6 +30,7 @@ namespace SentryGame.Snake
             Width = width;
             Height = height;
             body = new List<GridPoint>(initialBody);
+            readOnlyBody = body.AsReadOnly();
 
             if (body.Count == 0)
             {
@@ -50,7 +52,7 @@ namespace SentryGame.Snake
 
         public int Height { get; }
 
-        public IReadOnlyList<GridPoint> Body => body;
+        public IReadOnlyList<GridPoint> Body => readOnlyBody;
 
         public GridPoint Head => body[0];
 
@@ -83,14 +85,15 @@ namespace SentryGame.Snake
             }
 
             var nextHead = Head.Add(Direction.ToVector());
-            if (IsOutsideMap(nextHead) || body.Contains(nextHead))
+            var eatsFood = nextHead == Food;
+            if (IsOutsideMap(nextHead) || HitsBody(nextHead, eatsFood))
             {
                 State = GameState.GameOver;
                 return;
             }
 
             body.Insert(0, nextHead);
-            if (nextHead == Food)
+            if (eatsFood)
             {
                 Score += 1;
                 NeedsFood = true;
@@ -115,6 +118,21 @@ namespace SentryGame.Snake
         private bool IsOutsideMap(GridPoint point)
         {
             return point.X < 0 || point.X >= Width || point.Y < 0 || point.Y >= Height;
+        }
+
+        private bool HitsBody(GridPoint point, bool grows)
+        {
+            // 判断下一格是否撞到蛇身；普通移动时尾巴会先离开，可排除最后一节。
+            var checkedLength = grows ? body.Count : body.Count - 1;
+            for (var i = 0; i < checkedLength; i += 1)
+            {
+                if (body[i] == point)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void ValidateInsideMap(GridPoint point, string parameterName)

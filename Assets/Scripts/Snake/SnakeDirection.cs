@@ -20,6 +20,7 @@ namespace SentryGame.Snake
 
         public static GridPoint ToVector(this SnakeDirection direction)
         {
+            // 将输入方向转换成单步网格偏移，供蛇头计算下一格位置。
             switch (direction)
             {
                 case SnakeDirection.Up:
