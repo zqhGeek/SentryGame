@@ -30,3 +30,6 @@
 
 # 本项目本地构建输出
 Andorid/
+
+# 隔离工作区
+.worktrees/
