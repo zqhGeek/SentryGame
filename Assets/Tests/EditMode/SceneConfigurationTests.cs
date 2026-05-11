@@ -21,7 +21,7 @@ namespace SentryGame.Tests.EditMode
         {
             var configuredPaths = EditorBuildSettings.scenes.Where(scene => scene.enabled).Select(scene => scene.path).ToArray();
 
-            CollectionAssert.IsSubsetOf(ExpectedScenePaths, configuredPaths);
+            CollectionAssert.AreEqual(ExpectedScenePaths, configuredPaths);
         }
 
         [TestCase(GameSceneNames.LoginScene, nameof(SentryGame.UI.LoginSceneController))]
@@ -45,6 +45,16 @@ namespace SentryGame.Tests.EditMode
 
             Assert.IsNotNull(method);
             Assert.IsTrue(method.IsStatic);
+        }
+
+        [Test]
+        public void RuntimeControllersCanCreateMissingUiReferences()
+        {
+            Assert.IsNotNull(typeof(SentryGame.UI.RuntimeUiFactory));
+            Assert.IsNotNull(typeof(SentryGame.UI.LoginSceneController).GetMethod("OnLoginClicked"));
+            Assert.IsNotNull(typeof(SentryGame.UI.ModeSelectSceneController).GetMethod("OpenWhackAMole"));
+            Assert.IsNotNull(typeof(SentryGame.UI.WhackAMoleSceneController).GetMethod("HitMole"));
+            Assert.IsNotNull(typeof(SentryGame.UI.SnakeSceneController).GetMethod("ReturnToModeSelect"));
         }
     }
 }

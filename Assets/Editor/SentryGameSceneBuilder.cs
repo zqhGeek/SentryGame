@@ -31,6 +31,7 @@ namespace SentryGame.Editor
 
         private static void BuildLoginScene()
         {
+            // 创建登录场景的 Canvas、输入框、错误提示、登录按钮，并绑定到登录控制器。
             var scene = CreateBaseScene();
             var canvas = CreateCanvas();
             var controller = new GameObject(nameof(LoginSceneController)).AddComponent<LoginSceneController>();
@@ -48,6 +49,7 @@ namespace SentryGame.Editor
 
         private static void BuildModeSelectScene()
         {
+            // 创建模式选择场景的标题和两个模式入口按钮，并绑定到模式选择控制器。
             var scene = CreateBaseScene();
             var canvas = CreateCanvas();
             var controller = new GameObject(nameof(ModeSelectSceneController)).AddComponent<ModeSelectSceneController>();
@@ -61,6 +63,7 @@ namespace SentryGame.Editor
 
         private static void BuildWhackAMoleScene()
         {
+            // 创建打地鼠场景的分数、状态、玩法区域、红点按钮和返回按钮。
             var scene = CreateBaseScene();
             var canvas = CreateCanvas();
             var controller = new GameObject(nameof(WhackAMoleSceneController)).AddComponent<WhackAMoleSceneController>();
@@ -217,6 +220,7 @@ namespace SentryGame.Editor
 
         private static void UpdateBuildSettings()
         {
+            // 用四个正式游戏场景重建构建列表，确保 Android 启动入口是登录场景。
             var requiredScenes = new[]
             {
                 $"{SceneFolder}/{GameSceneNames.LoginScene}.unity",
@@ -224,13 +228,7 @@ namespace SentryGame.Editor
                 $"{SceneFolder}/{GameSceneNames.WhackAMoleScene}.unity",
                 $"{SceneFolder}/{GameSceneNames.SnakeScene}.unity"
             };
-            var merged = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
-            foreach (var path in requiredScenes.Where(path => merged.All(scene => scene.path != path)))
-            {
-                merged.Add(new EditorBuildSettingsScene(path, true));
-            }
-
-            EditorBuildSettings.scenes = merged.ToArray();
+            EditorBuildSettings.scenes = requiredScenes.Select(path => new EditorBuildSettingsScene(path, true)).ToArray();
         }
     }
 }
