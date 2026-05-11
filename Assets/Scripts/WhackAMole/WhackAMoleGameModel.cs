@@ -8,6 +8,13 @@ namespace SentryGame.WhackAMole
 
         public WhackAMoleGameModel(int initialScore)
         {
+            if (initialScore <= 0)
+            {
+                Score = 0;
+                State = GameState.GameOver;
+                return;
+            }
+
             Score = initialScore;
             State = GameState.Running;
         }
@@ -20,7 +27,7 @@ namespace SentryGame.WhackAMole
 
         public void SpawnMole(float lifeTime)
         {
-            if (State == GameState.GameOver)
+            if (State == GameState.GameOver || lifeTime <= 0f)
             {
                 return;
             }

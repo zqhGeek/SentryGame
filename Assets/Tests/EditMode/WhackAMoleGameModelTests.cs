@@ -42,5 +42,24 @@ namespace SentryGame.Tests
             Assert.AreEqual(0, model.Score);
             Assert.AreEqual(GameState.GameOver, model.State);
         }
+
+        [Test]
+        public void Constructor_EndsGame_WhenInitialScoreIsNotPositive()
+        {
+            var model = new WhackAMoleGameModel(0);
+
+            Assert.AreEqual(0, model.Score);
+            Assert.AreEqual(GameState.GameOver, model.State);
+        }
+
+        [Test]
+        public void SpawnMole_IgnoresNonPositiveLifeTime()
+        {
+            var model = new WhackAMoleGameModel(5);
+
+            model.SpawnMole(0f);
+
+            Assert.IsFalse(model.HasActiveMole);
+        }
     }
 }
