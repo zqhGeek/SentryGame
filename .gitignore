@@ -1,0 +1,32 @@
+# Unity 生成目录
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+
+# Unity 本地缓存和临时文件
+.utmp/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+
+# Visual Studio / Rider 生成文件
+.vs/
+.idea/
+*.csproj
+*.sln
+*.user
+*.userprefs
+*.pidb
+*.suo
+*.sln.docstates
+
+# Unity 自动生成调试文件
+*.apk
+*.aab
+*_BurstDebugInformation_DoNotShip/
+
+# 本项目本地构建输出
+Andorid/
