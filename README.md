@@ -38,7 +38,7 @@
 
 项目已设置为竖屏运行：
 
-- 默认屏幕方向：Portrait，Android 构建时通过 Manifest 后处理器把主 Activity 强制为 `reversePortrait`，用于修正 Android 真机竖屏方向倒置问题。
+- 默认屏幕方向：Portrait，Android 构建时通过 Manifest 后处理器把主 Activity 强制为 `portrait`，避免 Unity 6000 意外生成横屏或反向竖屏方向。
 - 禁止横屏自动旋转。
 - Canvas 参考分辨率：`1080x1920`。
 - Android 包名：`com.sentrygame.mobile`。

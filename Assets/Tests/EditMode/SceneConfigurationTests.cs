@@ -36,7 +36,7 @@ namespace SentryGame.Tests.EditMode
         }
 
         [Test]
-        public void AndroidUsesPortraitSettingsWithManifestReversePortraitPatch()
+        public void AndroidUsesPortraitSettingsWithManifestPortraitPatch()
         {
             var projectSettingsText = File.ReadAllText("ProjectSettings/ProjectSettings.asset");
             var manifestPostProcessorText = File.ReadAllText("Assets/Editor/AndroidManifestOrientationPostProcessor.cs");
@@ -46,7 +46,8 @@ namespace SentryGame.Tests.EditMode
             StringAssert.Contains("allowedAutorotateToPortraitUpsideDown: 0", projectSettingsText);
             StringAssert.Contains("allowedAutorotateToLandscapeRight: 0", projectSettingsText);
             StringAssert.Contains("allowedAutorotateToLandscapeLeft: 0", projectSettingsText);
-            StringAssert.Contains("reversePortrait", manifestPostProcessorText);
+            StringAssert.Contains("\"portrait\"", manifestPostProcessorText);
+            StringAssert.DoesNotContain("reversePortrait", manifestPostProcessorText);
             StringAssert.Contains("UnityPlayerGameActivity", manifestPostProcessorText);
         }
 
