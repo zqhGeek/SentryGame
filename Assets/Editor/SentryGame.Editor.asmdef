@@ -2,8 +2,7 @@
     "name": "SentryGame.Editor",
     "rootNamespace": "",
     "references": [
-        "SentryGame.Runtime",
-        "Unity.InputSystem"
+        "SentryGame.Runtime"
     ],
     "includePlatforms": [
         "Editor"

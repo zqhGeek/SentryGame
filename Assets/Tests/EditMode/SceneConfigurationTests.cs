@@ -24,6 +24,15 @@ namespace SentryGame.Tests.EditMode
             CollectionAssert.AreEqual(ExpectedScenePaths, configuredPaths);
         }
 
+        [Test]
+        public void AndroidUsesLegacyInputManagerOnly()
+        {
+            var projectSettingsText = File.ReadAllText("ProjectSettings/ProjectSettings.asset");
+
+            StringAssert.Contains("activeInputHandler: 0", projectSettingsText);
+            StringAssert.DoesNotContain("activeInputHandler: 2", projectSettingsText);
+        }
+
         [TestCase(GameSceneNames.LoginScene, nameof(SentryGame.UI.LoginSceneController))]
         [TestCase(GameSceneNames.ModeSelectScene, nameof(SentryGame.UI.ModeSelectSceneController))]
         [TestCase(GameSceneNames.WhackAMoleScene, nameof(SentryGame.UI.WhackAMoleSceneController))]
