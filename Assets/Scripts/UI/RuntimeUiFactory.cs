@@ -91,16 +91,23 @@ namespace SentryGame.UI
 
         private static void EnsureEventSystem()
         {
-            // 创建兼容新旧输入系统的事件系统，确保 Editor 和 Android 触控都能点击 UGUI。
-            if (Object.FindObjectOfType<EventSystem>() != null)
+            // 创建或修补兼容新旧输入系统的事件系统，确保 Editor 和 Android 触控都能点击 UGUI。
+            var eventSystem = Object.FindObjectOfType<EventSystem>();
+            if (eventSystem == null)
             {
-                return;
+                var eventSystemObject = new GameObject("EventSystem");
+                eventSystem = eventSystemObject.AddComponent<EventSystem>();
             }
 
-            var eventSystem = new GameObject("EventSystem");
-            eventSystem.AddComponent<EventSystem>();
-            eventSystem.AddComponent<StandaloneInputModule>();
-            eventSystem.AddComponent<InputSystemUIInputModule>();
+            if (eventSystem.GetComponent<StandaloneInputModule>() == null)
+            {
+                eventSystem.gameObject.AddComponent<StandaloneInputModule>();
+            }
+
+            if (eventSystem.GetComponent<InputSystemUIInputModule>() == null)
+            {
+                eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
+            }
         }
     }
 }

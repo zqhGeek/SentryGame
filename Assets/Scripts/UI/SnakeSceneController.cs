@@ -25,6 +25,7 @@ namespace SentryGame.UI
         private readonly System.Random random = new System.Random();
         private SnakeGameModel model;
         private float stepTimer;
+        private bool noFoodGameOver;
 
         private void Awake()
         {
@@ -41,7 +42,7 @@ namespace SentryGame.UI
 
         private void Update()
         {
-            if (model == null || model.State == GameState.GameOver)
+            if (model == null || model.State == GameState.GameOver || noFoodGameOver)
             {
                 return;
             }
@@ -150,6 +151,7 @@ namespace SentryGame.UI
             if (emptyCells.Count <= 0)
             {
                 statusText.text = "游戏结束";
+                noFoodGameOver = true;
                 return false;
             }
 
@@ -188,7 +190,7 @@ namespace SentryGame.UI
 
             if (statusText != null)
             {
-                statusText.text = model != null && model.State == GameState.GameOver ? "游戏结束" : string.Empty;
+                statusText.text = model != null && (model.State == GameState.GameOver || noFoodGameOver) ? "游戏结束" : string.Empty;
             }
         }
 
