@@ -1,9 +1,8 @@
 {
-    "name": "SentryGame.EditModeTests",
+    "name": "SentryGame.Editor",
     "rootNamespace": "",
     "references": [
-        "SentryGame.Runtime",
-        "SentryGame.Editor"
+        "SentryGame.Runtime"
     ],
     "includePlatforms": [
         "Editor"
@@ -15,8 +14,5 @@
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],
-    "noEngineReferences": false,
-    "optionalUnityReferences": [
-        "TestAssemblies"
-    ]
+    "noEngineReferences": false
 }
