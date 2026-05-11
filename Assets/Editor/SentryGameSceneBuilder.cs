@@ -137,14 +137,28 @@ namespace SentryGame.Editor
 
         private static Text CreateText(Transform parent, string text, Vector2 position, Vector2 size, int fontSize)
         {
-            var image = CreateImage(parent, "Text", position, size, Color.clear);
-            var label = image.gameObject.AddComponent<Text>();
+            var gameObject = new GameObject("Text");
+            gameObject.transform.SetParent(parent, false);
+            var rectTransform = gameObject.AddComponent<RectTransform>();
+            rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            rectTransform.anchoredPosition = position;
+            rectTransform.sizeDelta = size;
+            var label = gameObject.AddComponent<Text>();
+            label.font = GetDefaultFont();
             label.text = text;
-            label.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
             label.fontSize = fontSize;
             label.alignment = TextAnchor.MiddleCenter;
             label.color = new Color(0.08f, 0.12f, 0.18f);
             return label;
+        }
+
+        private static Font GetDefaultFont()
+        {
+            return Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf")
+                ?? Resources.GetBuiltinResource<Font>("Arial.ttf")
+                ?? Font.CreateDynamicFontFromOSFont(new[] { "Microsoft YaHei", "SimHei", "Arial" }, 32);
         }
 
         private static InputField CreateInput(Transform parent, string placeholder, Vector2 position, bool password)

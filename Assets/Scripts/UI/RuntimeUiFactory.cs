@@ -34,9 +34,17 @@ namespace SentryGame.UI
 
         public static Text CreateText(Transform parent, string name, string text, Vector2 position, Vector2 size, int fontSize)
         {
-            var label = CreateImage(parent, name, position, size, Color.clear).gameObject.AddComponent<Text>();
+            var gameObject = new GameObject(name);
+            gameObject.transform.SetParent(parent, false);
+            var rectTransform = gameObject.AddComponent<RectTransform>();
+            rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            rectTransform.anchoredPosition = position;
+            rectTransform.sizeDelta = size;
+            var label = gameObject.AddComponent<Text>();
+            label.font = GetDefaultFont();
             label.text = text;
-            label.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
             label.fontSize = fontSize;
             label.alignment = TextAnchor.MiddleCenter;
             label.color = new Color(0.08f, 0.12f, 0.18f);
@@ -108,6 +116,13 @@ namespace SentryGame.UI
             {
                 eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
             }
+        }
+
+        private static Font GetDefaultFont()
+        {
+            return Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf")
+                ?? Resources.GetBuiltinResource<Font>("Arial.ttf")
+                ?? Font.CreateDynamicFontFromOSFont(new[] { "Microsoft YaHei", "SimHei", "Arial" }, 32);
         }
     }
 }
