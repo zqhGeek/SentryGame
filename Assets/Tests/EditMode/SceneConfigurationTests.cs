@@ -35,6 +35,18 @@ namespace SentryGame.Tests.EditMode
             StringAssert.DoesNotContain("com.unity.inputsystem", packageManifestText);
         }
 
+        [Test]
+        public void AndroidUsesUpsideDownPortraitOrientation()
+        {
+            var projectSettingsText = File.ReadAllText("ProjectSettings/ProjectSettings.asset");
+
+            StringAssert.Contains("defaultScreenOrientation: 2", projectSettingsText);
+            StringAssert.Contains("allowedAutorotateToPortrait: 0", projectSettingsText);
+            StringAssert.Contains("allowedAutorotateToPortraitUpsideDown: 1", projectSettingsText);
+            StringAssert.Contains("allowedAutorotateToLandscapeRight: 0", projectSettingsText);
+            StringAssert.Contains("allowedAutorotateToLandscapeLeft: 0", projectSettingsText);
+        }
+
         [TestCase(GameSceneNames.LoginScene, nameof(SentryGame.UI.LoginSceneController))]
         [TestCase(GameSceneNames.ModeSelectScene, nameof(SentryGame.UI.ModeSelectSceneController))]
         [TestCase(GameSceneNames.WhackAMoleScene, nameof(SentryGame.UI.WhackAMoleSceneController))]

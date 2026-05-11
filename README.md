@@ -38,7 +38,7 @@
 
 项目已设置为竖屏运行：
 
-- 默认屏幕方向：Portrait。
+- 默认屏幕方向：Portrait Upside Down，用于修正 Android 真机竖屏方向倒置问题。
 - 禁止横屏自动旋转。
 - Canvas 参考分辨率：`1080x1920`。
 - Android 包名：`com.sentrygame.mobile`。
