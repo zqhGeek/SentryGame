@@ -71,6 +71,15 @@ namespace SentryGame.Tests.EditMode
         }
 
         [Test]
+        public void AndroidBuilderExposesBuildApk()
+        {
+            var method = typeof(SentryGame.Editor.SentryGameAndroidBuilder).GetMethod(nameof(SentryGame.Editor.SentryGameAndroidBuilder.BuildApk));
+
+            Assert.IsNotNull(method);
+            Assert.IsTrue(method.IsStatic);
+        }
+
+        [Test]
         public void RuntimeControllersCanCreateMissingUiReferences()
         {
             Assert.IsNotNull(typeof(SentryGame.UI.RuntimeUiFactory));

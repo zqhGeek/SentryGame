@@ -46,6 +46,14 @@
 
 Android 打包需要安装 Unity Android Build Support，并配置可用的 Android SDK、NDK 和 JDK。建议在真机上验证按钮触控、屏幕比例和安全区域表现。
 
+## Android 命令行打包
+
+可以使用以下命令生成 APK，输出路径为 `F:\Caches\SentryGame\Builds\Android\SentryGame.apk`：
+
+```powershell
+& "F:\Unity\6000.3.9f1\Editor\Unity.exe" -batchmode -quit -projectPath "F:\UnityProject\SentryGame" -buildTarget Android -executeMethod SentryGame.Editor.SentryGameAndroidBuilder.BuildApk -logFile "F:\Caches\SentryGame\Builds\Android\android-build.log"
+```
+
 ## 自动化测试
 
 EditMode 测试覆盖登录校验、打地鼠规则、贪吃蛇规则和场景配置。可使用以下命令运行测试：
