@@ -1,4 +1,5 @@
 using SentryGame.Common;
+using SentryGame.SentryTesting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,6 +11,7 @@ namespace SentryGame.UI
         [SerializeField] private InputField passwordInput = null;
         [SerializeField] private Text errorText = null;
         [SerializeField] private Button loginButton = null;
+        private int failureCount;
 
         private void Awake()
         {
@@ -28,10 +30,13 @@ namespace SentryGame.UI
             var password = passwordInput == null ? string.Empty : passwordInput.text;
             if (LoginService.Validate(userName, password))
             {
+                SentryTelemetryService.RecordLoginSuccess(userName);
                 SceneLoader.LoadScene(GameSceneNames.ModeSelectScene);
                 return;
             }
 
+            failureCount += 1;
+            SentryTelemetryService.RecordLoginFailure(userName, failureCount);
             ShowError("账号或密码错误");
         }
 

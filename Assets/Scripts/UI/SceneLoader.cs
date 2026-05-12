@@ -1,4 +1,5 @@
 using SentryGame.Common;
+using SentryGame.SentryTesting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -8,6 +9,7 @@ namespace SentryGame.UI
     {
         public static void LoadScene(string sceneName)
         {
+            SentryTelemetryService.RecordSceneLoad(sceneName);
             SceneManager.LoadScene(sceneName);
         }
 
@@ -29,6 +31,11 @@ namespace SentryGame.UI
         public void LoadSnakeScene()
         {
             LoadScene(GameSceneNames.SnakeScene);
+        }
+
+        public void LoadSentryDiagnosticScene()
+        {
+            LoadScene(GameSceneNames.SentryDiagnosticScene);
         }
     }
 }

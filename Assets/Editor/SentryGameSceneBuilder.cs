@@ -22,6 +22,7 @@ namespace SentryGame.Editor
             EnsureFolders();
             BuildLoginScene();
             BuildModeSelectScene();
+            BuildSentryDiagnosticScene();
             BuildWhackAMoleScene();
             BuildSnakeScene();
             UpdateBuildSettings();
@@ -56,9 +57,19 @@ namespace SentryGame.Editor
             CreateText(canvas.transform, "选择模式", new Vector2(0f, 460f), new Vector2(760f, 120f), 64);
             var whackButton = CreateButton(canvas.transform, "打地鼠", new Vector2(0f, 160f), new Vector2(560f, 120f));
             var snakeButton = CreateButton(canvas.transform, "贪吃蛇", new Vector2(0f, -20f), new Vector2(560f, 120f));
+            var sentryButton = CreateButton(canvas.transform, "哨兵测试", new Vector2(0f, -200f), new Vector2(560f, 120f));
 
-            Bind(controller, ("whackAMoleButton", whackButton), ("snakeButton", snakeButton));
+            Bind(controller, ("whackAMoleButton", whackButton), ("snakeButton", snakeButton), ("sentryDiagnosticsButton", sentryButton));
             SaveScene(scene, GameSceneNames.ModeSelectScene);
+        }
+
+        private static void BuildSentryDiagnosticScene()
+        {
+            // 创建 Sentry 诊断场景，运行时控制器会根据诊断清单生成所有按钮。
+            var scene = CreateBaseScene();
+            CreateCanvas();
+            new GameObject(nameof(SentryDiagnosticsSceneController)).AddComponent<SentryDiagnosticsSceneController>();
+            SaveScene(scene, GameSceneNames.SentryDiagnosticScene);
         }
 
         private static void BuildWhackAMoleScene()
@@ -241,6 +252,7 @@ namespace SentryGame.Editor
             {
                 $"{SceneFolder}/{GameSceneNames.LoginScene}.unity",
                 $"{SceneFolder}/{GameSceneNames.ModeSelectScene}.unity",
+                $"{SceneFolder}/{GameSceneNames.SentryDiagnosticScene}.unity",
                 $"{SceneFolder}/{GameSceneNames.WhackAMoleScene}.unity",
                 $"{SceneFolder}/{GameSceneNames.SnakeScene}.unity"
             };

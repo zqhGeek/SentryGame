@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using SentryGame.Common;
+using SentryGame.SentryTesting;
 using SentryGame.Snake;
 using UnityEngine;
 using UnityEngine.UI;
@@ -26,6 +27,7 @@ namespace SentryGame.UI
         private SnakeGameModel model;
         private float stepTimer;
         private bool noFoodGameOver;
+        private bool gameOverRecorded;
 
         private void Awake()
         {
@@ -54,7 +56,18 @@ namespace SentryGame.UI
             }
 
             stepTimer = 0f;
+            var previousScore = model.Score;
             model.Step();
+            if (model.Score > previousScore)
+            {
+                SentryTelemetryService.RecordSnakeFoodEaten(model.Score, model.Body.Count);
+            }
+
+            if (model.State == GameState.GameOver)
+            {
+                RecordGameOverOnce("collision");
+            }
+
             if (model.NeedsFood)
             {
                 TryPlaceNextFood();
@@ -65,6 +78,7 @@ namespace SentryGame.UI
 
         public void ReturnToModeSelect()
         {
+            SentryTelemetryService.RecordModeSelected("return", GameSceneNames.ModeSelectScene);
             SceneLoader.LoadScene(GameSceneNames.ModeSelectScene);
         }
 
@@ -102,6 +116,7 @@ namespace SentryGame.UI
             if (model != null)
             {
                 model.ChangeDirection(direction);
+                SentryTelemetryService.RecordSnakeDirection(direction.ToString());
             }
         }
 
@@ -152,11 +167,23 @@ namespace SentryGame.UI
             {
                 statusText.text = "游戏结束";
                 noFoodGameOver = true;
+                RecordGameOverOnce("no_food_space");
                 return false;
             }
 
             model.SetFood(emptyCells[random.Next(emptyCells.Count)]);
             return true;
+        }
+
+        private void RecordGameOverOnce(string reason)
+        {
+            if (gameOverRecorded || model == null)
+            {
+                return;
+            }
+
+            gameOverRecorded = true;
+            SentryTelemetryService.RecordSnakeGameOver(model.Score, model.Body.Count, reason);
         }
 
         private void Render()

@@ -1,4 +1,5 @@
 using SentryGame.Common;
+using SentryGame.SentryTesting;
 using SentryGame.WhackAMole;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,6 +20,7 @@ namespace SentryGame.UI
         [SerializeField] private Button backButton = null;
 
         private WhackAMoleGameModel model;
+        private bool gameOverRecorded;
 
         private void Awake()
         {
@@ -52,7 +54,19 @@ namespace SentryGame.UI
                 return;
             }
 
+            var hadActiveMole = model.HasActiveMole;
+            var previousScore = model.Score;
             model.Tick(Time.deltaTime);
+            if (hadActiveMole && !model.HasActiveMole && model.Score < previousScore)
+            {
+                SentryTelemetryService.RecordMoleMissed(model.Score);
+            }
+
+            if (model.State == GameState.GameOver)
+            {
+                RecordGameOverOnce("score_zero");
+            }
+
             if (!model.HasActiveMole && model.State == GameState.Running)
             {
                 SpawnMole();
@@ -68,7 +82,13 @@ namespace SentryGame.UI
                 return;
             }
 
+            var previousScore = model.Score;
             model.HitActiveMole();
+            if (model.Score > previousScore)
+            {
+                SentryTelemetryService.RecordMoleHit(model.Score);
+            }
+
             if (model.State == GameState.Running)
             {
                 SpawnMole();
@@ -79,14 +99,28 @@ namespace SentryGame.UI
 
         public void ReturnToModeSelect()
         {
+            SentryTelemetryService.RecordModeSelected("return", GameSceneNames.ModeSelectScene);
             SceneLoader.LoadScene(GameSceneNames.ModeSelectScene);
         }
 
         public void RestartGame()
         {
             model = new WhackAMoleGameModel(InitialScore);
+            gameOverRecorded = false;
+            SentryTelemetryService.RecordModeSelected("whack_a_mole_restart", GameSceneNames.WhackAMoleScene);
             SpawnMole();
             RefreshView();
+        }
+
+        private void RecordGameOverOnce(string reason)
+        {
+            if (gameOverRecorded || model == null)
+            {
+                return;
+            }
+
+            gameOverRecorded = true;
+            SentryTelemetryService.RecordWhackAMoleGameOver(model.Score, reason);
         }
 
         private void SpawnMole()

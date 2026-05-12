@@ -15,35 +15,35 @@ MonoBehaviour:
   <Enabled>k__BackingField: 1
   <Dsn>k__BackingField: https://053cbf87e42c0a555ea59144b34e4f3f@o1388912.ingest.us.sentry.io/4507537137139712
   <CaptureInEditor>k__BackingField: 1
-  <EnableErrorEventThrottling>k__BackingField: 0
+  <EnableErrorEventThrottling>k__BackingField: 1
   <ThrottleDedupeWindow>k__BackingField: 1000
-  <EnableLogDebouncing>k__BackingField: 0
+  <EnableLogDebouncing>k__BackingField: 1
   <DebounceTimeLog>k__BackingField: 1000
   <DebounceTimeWarning>k__BackingField: 1000
   <DebounceTimeError>k__BackingField: 1000
-  <TracesSampleRate>k__BackingField: 0
+  <TracesSampleRate>k__BackingField: 1
   <AutoStartupTraces>k__BackingField: 1
   <AutoSceneLoadTraces>k__BackingField: 1
-  <AutoAwakeTraces>k__BackingField: 0
+  <AutoAwakeTraces>k__BackingField: 1
   <AutoSessionTracking>k__BackingField: 1
   <AutoSessionTrackingInterval>k__BackingField: 30000
   <ReleaseOverride>k__BackingField: 
   <EnvironmentOverride>k__BackingField: 
-  <AttachStacktrace>k__BackingField: 0
-  <AttachScreenshot>k__BackingField: 0
+  <AttachStacktrace>k__BackingField: 1
+  <AttachScreenshot>k__BackingField: 1
   <ScreenshotQuality>k__BackingField: 1
   <ScreenshotCompression>k__BackingField: 75
-  <AttachViewHierarchy>k__BackingField: 0
+  <AttachViewHierarchy>k__BackingField: 1
   <MaxViewHierarchyRootObjects>k__BackingField: 100
   <MaxViewHierarchyObjectChildCount>k__BackingField: 20
   <MaxViewHierarchyDepth>k__BackingField: 10
-  <EnableStructuredLogging>k__BackingField: 0
-  <StructuredLogOnDebugLog>k__BackingField: 0
+  <EnableStructuredLogging>k__BackingField: 1
+  <StructuredLogOnDebugLog>k__BackingField: 1
   <StructuredLogOnDebugLogWarning>k__BackingField: 1
   <StructuredLogOnDebugLogAssertion>k__BackingField: 1
   <StructuredLogOnDebugLogError>k__BackingField: 1
   <StructuredLogOnDebugLogException>k__BackingField: 1
-  <AddBreadcrumbsWithStructuredLogs>k__BackingField: 0
+  <AddBreadcrumbsWithStructuredLogs>k__BackingField: 1
   <BreadcrumbsForLogs>k__BackingField: 1
   <BreadcrumbsForWarnings>k__BackingField: 1
   <BreadcrumbsForAsserts>k__BackingField: 1
@@ -51,7 +51,7 @@ MonoBehaviour:
   <CaptureLogErrorEvents>k__BackingField: 1
   <MaxBreadcrumbs>k__BackingField: 100
   <ReportAssembliesMode>k__BackingField: 1
-  <SendDefaultPii>k__BackingField: 0
+  <SendDefaultPii>k__BackingField: 1
   <IsEnvironmentUser>k__BackingField: 0
   <EnableOfflineCaching>k__BackingField: 1
   <MaxCacheItems>k__BackingField: 30

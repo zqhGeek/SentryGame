@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/ModeSelectScene.unity
     guid: 4e218f1c2f584e28aa0a5f81e358109c
   - enabled: 1
+    path: Assets/Scenes/SentryDiagnosticScene.unity
+    guid: 9d0ccd579f26b094ea4e57d74744d1b3
+  - enabled: 1
     path: Assets/Scenes/WhackAMoleScene.unity
     guid: 80a13d00333a4dfd8bd4357ab652c0d0
   - enabled: 1

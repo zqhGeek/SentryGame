@@ -1,6 +1,6 @@
 # 哨兵游戏
 
-这是一个 Unity 竖屏 Android 游戏示例，包含登录、模式选择、打地鼠和贪吃蛇四个场景。项目使用 UGUI 构建界面，玩法对象使用运行时生成的简单图形，不依赖外部美术资源。
+这是一个 Unity 竖屏 Android 游戏示例，包含登录、模式选择、Sentry 诊断、打地鼠和贪吃蛇五个场景。项目使用 UGUI 构建界面，玩法对象使用运行时生成的简单图形，不依赖外部美术资源。
 
 ## 登录信息
 
@@ -10,11 +10,12 @@
 ## 场景结构
 
 - `LoginScene`：登录入口，固定账号密码校验成功后进入模式选择。
-- `ModeSelectScene`：提供“打地鼠”和“贪吃蛇”两个模式入口。
+- `ModeSelectScene`：提供“打地鼠”“贪吃蛇”和“Sentry 功能测试”三个入口。
+- `SentryDiagnosticScene`：提供 Sentry 功能诊断入口，用于内部包直接触发各类 Sentry 能力。
 - `WhackAMoleScene`：打地鼠玩法场景。
 - `SnakeScene`：贪吃蛇玩法场景。
 
-构建场景顺序为 `LoginScene`、`ModeSelectScene`、`WhackAMoleScene`、`SnakeScene`，Android 启动后首先进入登录界面。
+构建场景顺序为 `LoginScene`、`ModeSelectScene`、`SentryDiagnosticScene`、`WhackAMoleScene`、`SnakeScene`，Android 启动后首先进入登录界面。
 
 ## 打地鼠玩法
 
@@ -23,6 +24,47 @@
 ## 贪吃蛇玩法
 
 贪吃蛇使用固定网格地图。蛇会按固定节奏自动移动。右下角提供上下左右四个方向按钮，移动端点击按钮即可改变方向。模型层会阻止蛇直接反向移动。食物随机生成在蛇身以外的空格。蛇吃到食物后分数加 1，并增长 1 节。蛇撞墙或撞到自己身体时游戏结束，可以返回模式选择界面。
+
+## Sentry 功能测试
+
+项目包含面向内部 APK 的 Sentry 功能测试能力。测试入口不隐藏，登录成功进入模式选择后，可以点击“哨兵测试”进入 `SentryDiagnosticScene`。
+
+真实玩法流程会自动记录 Sentry 数据：
+
+- 登录失败：记录面包屑、日志和 `login.failure` 指标。
+- 登录成功：设置测试用户、登录上下文和当前场景标签。
+- 模式选择：记录目标玩法、目标场景和场景跳转面包屑。
+- 打地鼠命中、漏点、游戏结束和重开：记录指标、分数和失败原因。
+- 贪吃蛇转向、吃食物、撞墙、撞到自身和返回：记录操作链路、分数、蛇身长度和失败原因。
+
+诊断场景提供以下按钮，用于补齐无法稳定通过真实玩法触发的能力：
+
+- 发送消息：验证 `CaptureMessage`。
+- 发送异常：验证 `CaptureException`。
+- 抛出未捕获异常：验证自动异常捕获。
+- 发送日志错误：验证 `Debug.LogError` 捕获。
+- 连续重复错误：验证日志防抖和错误限流。
+- 触发失败请求：验证失败请求捕获。
+- 发送性能追踪：验证手动 transaction 和 span。
+- 发送指标：验证 counter、gauge 和 distribution。
+- 发送结构化日志：验证 Sentry Logs。
+- 触发截图事件：验证截图附件。
+- 触发视图层级事件：验证 View Hierarchy 附件。
+- 断网缓存事件：断网点击后再联网重启，验证离线缓存补发。
+- 主线程阻塞：主要用于 Android 真机验证 ANR。
+- 原生崩溃：验证 native crash。
+- 过滤事件：发送带 `filtered_event=true` 标签的测试事件，便于配合 Sentry 过滤配置验证。
+
+当前 Sentry 测试配置已打开 tracing、自动启动追踪、自动场景加载追踪、Awake 追踪、截图、视图层级、结构化日志、日志面包屑、用户信息、离线缓存、Metrics、失败请求捕获、原生支持和 IL2CPP 行号支持。
+
+建议人工验证顺序：
+
+1. 在 Editor Play 模式执行一次“登录失败、登录成功、进入玩法、游戏结束、返回模式选择”，检查 Sentry 后台是否出现用户、标签、上下文、面包屑、日志、指标和性能数据。
+2. 进入“哨兵测试”，依次点击非破坏性按钮，检查 Sentry Issues、Logs、Metrics 和 Performance 页面。
+3. 断网后点击“断网缓存事件”，恢复网络并重启游戏，检查事件是否补发。
+4. 在 Android 真机点击“主线程阻塞”，检查是否出现 ANR 或相关卡顿事件。
+5. 在 Windows 或 Android 内部包点击“原生崩溃”，重启后检查 native crash 和 Release Health。
+6. IL2CPP 构建后触发异常或崩溃，检查堆栈方法名和行号是否可读。
 
 ## Editor 预览
 

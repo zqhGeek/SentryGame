@@ -12,6 +12,7 @@ namespace SentryGame.Tests.EditMode
         {
             $"Assets/Scenes/{GameSceneNames.LoginScene}.unity",
             $"Assets/Scenes/{GameSceneNames.ModeSelectScene}.unity",
+            $"Assets/Scenes/{GameSceneNames.SentryDiagnosticScene}.unity",
             $"Assets/Scenes/{GameSceneNames.WhackAMoleScene}.unity",
             $"Assets/Scenes/{GameSceneNames.SnakeScene}.unity"
         };
@@ -54,6 +55,7 @@ namespace SentryGame.Tests.EditMode
 
         [TestCase(GameSceneNames.LoginScene, nameof(SentryGame.UI.LoginSceneController))]
         [TestCase(GameSceneNames.ModeSelectScene, nameof(SentryGame.UI.ModeSelectSceneController))]
+        [TestCase(GameSceneNames.SentryDiagnosticScene, nameof(SentryGame.UI.SentryDiagnosticsSceneController))]
         [TestCase(GameSceneNames.WhackAMoleScene, nameof(SentryGame.UI.WhackAMoleSceneController))]
         [TestCase(GameSceneNames.SnakeScene, nameof(SentryGame.UI.SnakeSceneController))]
         public void SceneFileContainsCanvasAndControllerName(string sceneName, string controllerName)
@@ -90,6 +92,8 @@ namespace SentryGame.Tests.EditMode
             Assert.IsNotNull(typeof(SentryGame.UI.RuntimeUiFactory));
             Assert.IsNotNull(typeof(SentryGame.UI.LoginSceneController).GetMethod("OnLoginClicked"));
             Assert.IsNotNull(typeof(SentryGame.UI.ModeSelectSceneController).GetMethod("OpenWhackAMole"));
+            Assert.IsNotNull(typeof(SentryGame.UI.ModeSelectSceneController).GetMethod("OpenSentryDiagnostics"));
+            Assert.IsNotNull(typeof(SentryGame.UI.SentryDiagnosticsSceneController).GetMethod("RunDiagnosticCase"));
             Assert.IsNotNull(typeof(SentryGame.UI.WhackAMoleSceneController).GetMethod("HitMole"));
             Assert.IsNotNull(typeof(SentryGame.UI.WhackAMoleSceneController).GetMethod("RestartGame"));
             Assert.IsNotNull(typeof(SentryGame.UI.SnakeSceneController).GetMethod("ReturnToModeSelect"));
@@ -114,6 +118,24 @@ namespace SentryGame.Tests.EditMode
             StringAssert.Contains(@"\u5206\u6570\uFF1A5", sceneText);
             StringAssert.Contains(@"\u91CD\u65B0\u5F00\u59CB", sceneText);
             StringAssert.Contains("m_Name: ScorePanel", sceneText);
+        }
+
+        [Test]
+        public void SentryOptionsEnablesFullFeatureCoverage()
+        {
+            var optionsText = File.ReadAllText("Assets/Resources/Sentry/SentryOptions.asset");
+
+            StringAssert.Contains("<TracesSampleRate>k__BackingField: 1", optionsText);
+            StringAssert.Contains("<AutoAwakeTraces>k__BackingField: 1", optionsText);
+            StringAssert.Contains("<AttachStacktrace>k__BackingField: 1", optionsText);
+            StringAssert.Contains("<AttachScreenshot>k__BackingField: 1", optionsText);
+            StringAssert.Contains("<AttachViewHierarchy>k__BackingField: 1", optionsText);
+            StringAssert.Contains("<EnableStructuredLogging>k__BackingField: 1", optionsText);
+            StringAssert.Contains("<AddBreadcrumbsWithStructuredLogs>k__BackingField: 1", optionsText);
+            StringAssert.Contains("<SendDefaultPii>k__BackingField: 1", optionsText);
+            StringAssert.Contains("<EnableLogDebouncing>k__BackingField: 1", optionsText);
+            StringAssert.Contains("<EnableErrorEventThrottling>k__BackingField: 1", optionsText);
+            StringAssert.Contains("<EnableMetrics>k__BackingField: 1", optionsText);
         }
     }
 }
