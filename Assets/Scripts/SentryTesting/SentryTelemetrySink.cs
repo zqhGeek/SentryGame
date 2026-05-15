@@ -23,7 +23,7 @@ namespace SentryGame.SentryTesting
 
         void EmitDistribution(string name, double value, Dictionary<string, string> tags);
 
-        void BlockMainThread(int milliseconds);
+        void RunCpuStallTrace(int milliseconds, string transactionName, string spanName, Dictionary<string, string> tags, string contextName, object context);
 
         void RunDiagnosticCase(string id);
     }

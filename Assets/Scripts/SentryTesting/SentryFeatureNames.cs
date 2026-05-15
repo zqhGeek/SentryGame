@@ -36,6 +36,12 @@ namespace SentryGame.SentryTesting
         public static class Transactions
         {
             public const string ManualDiagnostics = "diagnostics.manual_transaction";
+            public const string WhackAMoleRandomStall = "whack_a_mole.random_stall";
+        }
+
+        public static class Spans
+        {
+            public const string WhackAMoleCpuStall = "whack_a_mole.cpu_stall";
         }
 
         public static class Diagnostics

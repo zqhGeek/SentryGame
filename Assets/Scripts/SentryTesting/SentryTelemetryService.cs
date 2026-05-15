@@ -92,16 +92,18 @@ namespace SentryGame.SentryTesting
 
         public static void RecordWhackAMoleRandomStall(int durationMilliseconds, int score)
         {
-            // 上报真实玩法中的随机卡顿，并通过 sink 阻塞主线程模拟性能问题。
-            Sink.SetContext(SentryFeatureNames.Contexts.WhackAMole, new WhackAMoleFaultContext(score, "random_stall", durationMilliseconds));
+            // 上报真实玩法中的随机卡顿，并通过 Sentry transaction/span 包裹 CPU 密集计算。
+            var tags = Tag("game_mode", "whack_a_mole");
+            var context = new WhackAMoleFaultContext(score, "random_stall", durationMilliseconds);
+            Sink.SetContext(SentryFeatureNames.Contexts.WhackAMole, context);
             Sink.AddBreadcrumb("whack_a_mole.random_stall", "performance", new Dictionary<string, string>
             {
                 { "score", score.ToString() },
                 { "duration_ms", durationMilliseconds.ToString() }
             });
-            Sink.EmitCounter(SentryFeatureNames.Metrics.WhackAMoleRandomStall, 1, Tag("game_mode", "whack_a_mole"));
-            Sink.EmitDistribution(SentryFeatureNames.Metrics.WhackAMoleStallDuration, durationMilliseconds, Tag("game_mode", "whack_a_mole"));
-            Sink.BlockMainThread(durationMilliseconds);
+            Sink.EmitCounter(SentryFeatureNames.Metrics.WhackAMoleRandomStall, 1, tags);
+            Sink.EmitDistribution(SentryFeatureNames.Metrics.WhackAMoleStallDuration, durationMilliseconds, tags);
+            Sink.RunCpuStallTrace(durationMilliseconds, SentryFeatureNames.Transactions.WhackAMoleRandomStall, SentryFeatureNames.Spans.WhackAMoleCpuStall, tags, SentryFeatureNames.Contexts.WhackAMole, context);
         }
 
         public static void RecordWhackAMoleRandomCrash(int score, string reason)
@@ -297,7 +299,7 @@ namespace SentryGame.SentryTesting
             {
             }
 
-            public void BlockMainThread(int milliseconds)
+            public void RunCpuStallTrace(int milliseconds, string transactionName, string spanName, Dictionary<string, string> tags, string contextName, object context)
             {
             }
 

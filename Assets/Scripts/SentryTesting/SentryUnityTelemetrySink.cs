@@ -75,9 +75,16 @@ namespace SentryGame.SentryTesting
             SentrySdk.Metrics.EmitDistribution(name, value);
         }
 
-        public void BlockMainThread(int milliseconds)
+        public void RunCpuStallTrace(int milliseconds, string transactionName, string spanName, Dictionary<string, string> tags, string contextName, object context)
         {
-            Thread.Sleep(Mathf.Max(1, milliseconds));
+            var transaction = SentrySdk.StartTransaction(transactionName, "gameplay.performance");
+            var span = transaction.StartChild(spanName, "CPU 密集卡顿模拟");
+            ApplyTags(transaction, tags);
+            ApplyTags(span, tags);
+            transaction.Contexts[contextName] = context;
+            RunCpuIntensiveWork(milliseconds);
+            span.Finish(SpanStatus.Ok);
+            transaction.Finish(SpanStatus.Ok);
         }
 
         public void RunDiagnosticCase(string id)
@@ -137,6 +144,33 @@ namespace SentryGame.SentryTesting
             foreach (var pair in tags)
             {
                 scope.SetTag(pair.Key, pair.Value);
+            }
+        }
+
+        private static void ApplyTags(IHasTags target, Dictionary<string, string> tags)
+        {
+            foreach (var pair in tags)
+            {
+                target.SetTag(pair.Key, pair.Value);
+            }
+        }
+
+        private static void RunCpuIntensiveWork(int milliseconds)
+        {
+            // 使用 CPU 密集循环模拟真实主线程繁忙，避免用 Sleep 制造不可执行的等待。
+            var deadline = Time.realtimeSinceStartup + Mathf.Max(1, milliseconds) / 1000f;
+            var value = 0.0001d;
+            while (Time.realtimeSinceStartup < deadline)
+            {
+                for (var i = 0; i < 2000; i += 1)
+                {
+                    value = Math.Sqrt(value + i + 1d);
+                }
+            }
+
+            if (value < 0d)
+            {
+                Debug.Log(value);
             }
         }
 

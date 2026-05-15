@@ -75,7 +75,7 @@ namespace SentryGame.Tests.EditMode
         }
 
         [Test]
-        public void WhackAMoleRandomStallRecordsTelemetryAndBlocksMainThread()
+        public void WhackAMoleRandomStallRecordsTelemetryAndRunsCpuTrace()
         {
             var sink = (RecordingSentryTelemetrySink)SentryTelemetryService.Sink;
 
@@ -84,7 +84,9 @@ namespace SentryGame.Tests.EditMode
             Assert.That(sink.Breadcrumbs, Does.Contain("whack_a_mole.random_stall"));
             Assert.That(sink.Metrics, Does.Contain(SentryFeatureNames.Metrics.WhackAMoleRandomStall));
             Assert.That(sink.Distributions, Does.Contain(SentryFeatureNames.Metrics.WhackAMoleStallDuration));
-            Assert.That(sink.BlockDurations, Does.Contain(350));
+            Assert.That(sink.CpuTraceDurations, Does.Contain(350));
+            Assert.That(sink.CpuTraceTransactions, Does.Contain(SentryFeatureNames.Transactions.WhackAMoleRandomStall));
+            Assert.That(sink.CpuTraceSpans, Does.Contain(SentryFeatureNames.Spans.WhackAMoleCpuStall));
             Assert.That(sink.Contexts, Does.Contain(SentryFeatureNames.Contexts.WhackAMole));
         }
 
@@ -132,7 +134,9 @@ namespace SentryGame.Tests.EditMode
             public readonly List<string> UserIds = new List<string>();
             public readonly List<string> Tags = new List<string>();
             public readonly List<string> Contexts = new List<string>();
-            public readonly List<int> BlockDurations = new List<int>();
+            public readonly List<int> CpuTraceDurations = new List<int>();
+            public readonly List<string> CpuTraceTransactions = new List<string>();
+            public readonly List<string> CpuTraceSpans = new List<string>();
             public readonly List<string> Exceptions = new List<string>();
 
             public void AddBreadcrumb(string name, string category, Dictionary<string, string> data)
@@ -181,9 +185,11 @@ namespace SentryGame.Tests.EditMode
                 Logs.Add(id);
             }
 
-            public void BlockMainThread(int milliseconds)
+            public void RunCpuStallTrace(int milliseconds, string transactionName, string spanName, Dictionary<string, string> tags, string contextName, object context)
             {
-                BlockDurations.Add(milliseconds);
+                CpuTraceDurations.Add(milliseconds);
+                CpuTraceTransactions.Add(transactionName);
+                CpuTraceSpans.Add(spanName);
             }
 
             public void CaptureException(System.Exception exception, Dictionary<string, string> tags, string contextName, object context)
