@@ -92,7 +92,7 @@ namespace SentryGame.SentryTesting
 
         public static void RecordWhackAMoleRandomStall(int durationMilliseconds, int score)
         {
-            // 上报真实玩法中的随机卡顿，并通过 Sentry transaction/span 包裹 CPU 密集计算。
+            // 上报真实玩法中的随机卡顿，并通过 Sentry transaction/span 包裹计算负载。
             var tags = Tag("game_mode", "whack_a_mole");
             var context = new WhackAMoleFaultContext(score, "random_stall", durationMilliseconds);
             Sink.SetContext(SentryFeatureNames.Contexts.WhackAMole, context);
@@ -103,7 +103,25 @@ namespace SentryGame.SentryTesting
             });
             Sink.EmitCounter(SentryFeatureNames.Metrics.WhackAMoleRandomStall, 1, tags);
             Sink.EmitDistribution(SentryFeatureNames.Metrics.WhackAMoleStallDuration, durationMilliseconds, tags);
-            Sink.RunCpuStallTrace(durationMilliseconds, SentryFeatureNames.Transactions.WhackAMoleRandomStall, SentryFeatureNames.Spans.WhackAMoleCpuStall, tags, SentryFeatureNames.Contexts.WhackAMole, context);
+            Sink.RunCpuStallTrace(durationMilliseconds, SentryFeatureNames.Transactions.WhackAMoleRandomStall, SentryFeatureNames.Spans.WhackAMoleRewardAppeared, "奖励出现了", tags, SentryFeatureNames.Contexts.WhackAMole, context);
+        }
+
+        public static void RecordSnakeRandomStall(int durationMilliseconds, int score, int length)
+        {
+            // 上报贪吃蛇奖励出现时的随机卡顿，并通过蛇专用 transaction/span 区分玩法。
+            var tags = Tag("game_mode", "snake");
+            var context = new SnakeFaultContext(score, length, 0, "reward_spawned", durationMilliseconds);
+            Sink.SetTag(SentryFeatureNames.Tags.GameMode, "snake");
+            Sink.SetContext(SentryFeatureNames.Contexts.Snake, context);
+            Sink.AddBreadcrumb("snake.random_stall", "performance", new Dictionary<string, string>
+            {
+                { "score", score.ToString() },
+                { "length", length.ToString() },
+                { "duration_ms", durationMilliseconds.ToString() }
+            });
+            Sink.EmitCounter(SentryFeatureNames.Metrics.SnakeRandomStall, 1, tags);
+            Sink.EmitDistribution(SentryFeatureNames.Metrics.SnakeStallDuration, durationMilliseconds, tags);
+            Sink.RunCpuStallTrace(durationMilliseconds, SentryFeatureNames.Transactions.SnakeRandomStall, SentryFeatureNames.Spans.SnakeRewardAppeared, "奖励出现了", tags, SentryFeatureNames.Contexts.Snake, context);
         }
 
         public static void RecordWhackAMoleRandomCrash(int score, string reason)
@@ -119,6 +137,25 @@ namespace SentryGame.SentryTesting
             });
             Sink.EmitCounter(SentryFeatureNames.Metrics.WhackAMoleRandomCrash, 1, Tag("game_mode", "whack_a_mole"));
             Sink.CaptureException(exception, Tag("game_mode", "whack_a_mole"), SentryFeatureNames.Contexts.WhackAMole, context);
+            throw exception;
+        }
+
+        public static void RecordSnakeRandomCrash(int score, int length, int moveCount, string reason)
+        {
+            // 只在控制器确认步数满足条件后调用；这里负责补充崩溃前的蛇玩法上下文。
+            var exception = new InvalidOperationException($"贪吃蛇随机崩溃：{reason}");
+            var context = new SnakeFaultContext(score, length, moveCount, reason, 0);
+            Sink.SetTag(SentryFeatureNames.Tags.GameMode, "snake");
+            Sink.SetContext(SentryFeatureNames.Contexts.Snake, context);
+            Sink.AddBreadcrumb("snake.random_crash", "error", new Dictionary<string, string>
+            {
+                { "score", score.ToString() },
+                { "length", length.ToString() },
+                { "move_count", moveCount.ToString() },
+                { "reason", reason }
+            });
+            Sink.EmitCounter(SentryFeatureNames.Metrics.SnakeRandomCrash, 1, Tag("game_mode", "snake"));
+            Sink.CaptureException(exception, Tag("game_mode", "snake"), SentryFeatureNames.Contexts.Snake, context);
             throw exception;
         }
 
@@ -261,6 +298,28 @@ namespace SentryGame.SentryTesting
             public string Reason { get; }
         }
 
+        private readonly struct SnakeFaultContext
+        {
+            public SnakeFaultContext(int score, int length, int moveCount, string reason, int durationMilliseconds)
+            {
+                Score = score;
+                Length = length;
+                MoveCount = moveCount;
+                Reason = reason;
+                DurationMilliseconds = durationMilliseconds;
+            }
+
+            public int Score { get; }
+
+            public int Length { get; }
+
+            public int MoveCount { get; }
+
+            public string Reason { get; }
+
+            public int DurationMilliseconds { get; }
+        }
+
         private sealed class NullSentryTelemetrySink : ISentryTelemetrySink
         {
             public void AddBreadcrumb(string name, string category, Dictionary<string, string> data)
@@ -299,7 +358,7 @@ namespace SentryGame.SentryTesting
             {
             }
 
-            public void RunCpuStallTrace(int milliseconds, string transactionName, string spanName, Dictionary<string, string> tags, string contextName, object context)
+            public void RunCpuStallTrace(int milliseconds, string transactionName, string spanName, string spanDescription, Dictionary<string, string> tags, string contextName, object context)
             {
             }
 

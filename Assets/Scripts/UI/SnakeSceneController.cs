@@ -9,6 +9,11 @@ namespace SentryGame.UI
 {
     public sealed class SnakeSceneController : MonoBehaviour
     {
+        private const float RandomStallProbability = 0.08f;
+        private const float RandomCrashProbability = 0.03f;
+        private const int RandomStallMilliseconds = 1000;
+        private const int RandomCrashStepInterval = 2;
+
         [SerializeField] private RectTransform mapRoot = null;
         [SerializeField] private Image cellPrefab = null;
         [SerializeField] private Text scoreText = null;
@@ -26,6 +31,7 @@ namespace SentryGame.UI
         private readonly System.Random random = new System.Random();
         private SnakeGameModel model;
         private float stepTimer;
+        private int moveCount;
         private bool noFoodGameOver;
         private bool gameOverRecorded;
 
@@ -44,6 +50,7 @@ namespace SentryGame.UI
 
         private void Update()
         {
+            // 按固定节奏推进蛇的移动，处理奖励、随机问题、游戏结束和画面刷新。
             if (model == null || model.State == GameState.GameOver || noFoodGameOver)
             {
                 return;
@@ -58,6 +65,12 @@ namespace SentryGame.UI
             stepTimer = 0f;
             var previousScore = model.Score;
             model.Step();
+            if (model.State == GameState.Running)
+            {
+                moveCount += 1;
+                TryTriggerRandomCrash();
+            }
+
             if (model.Score > previousScore)
             {
                 SentryTelemetryService.RecordSnakeFoodEaten(model.Score, model.Body.Count);
@@ -172,7 +185,24 @@ namespace SentryGame.UI
             }
 
             model.SetFood(emptyCells[random.Next(emptyCells.Count)]);
+            TryTriggerRandomStall();
             return true;
+        }
+
+        private void TryTriggerRandomStall()
+        {
+            if (model != null && Random.value < RandomStallProbability)
+            {
+                SentryTelemetryService.RecordSnakeRandomStall(RandomStallMilliseconds, model.Score, model.Body.Count);
+            }
+        }
+
+        private void TryTriggerRandomCrash()
+        {
+            if (model != null && moveCount % RandomCrashStepInterval == 0 && Random.value < RandomCrashProbability)
+            {
+                SentryTelemetryService.RecordSnakeRandomCrash(model.Score, model.Body.Count, moveCount, "even_move");
+            }
         }
 
         private void RecordGameOverOnce(string reason)

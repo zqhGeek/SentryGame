@@ -35,8 +35,8 @@
 - 登录成功：设置测试用户、登录上下文和当前场景标签。
 - 模式选择：记录目标玩法、目标场景和场景跳转面包屑。
 - 打地鼠进入、退出、命中、漏点、游戏结束和重开：记录指标、分数、场景、上下文和失败原因。
-- 打地鼠命中红点后会低概率触发真实玩法内的随机卡顿和随机崩溃：随机卡顿通过 1 秒 CPU 密集计算模拟主线程性能问题，并用 Sentry transaction 和 span 包裹，随机崩溃会在上报上下文后抛出未捕获异常。
-- 贪吃蛇转向、吃食物、撞墙、撞到自身和返回：记录操作链路、分数、蛇身长度和失败原因。
+- 打地鼠命中红点后会低概率触发真实玩法内的随机卡顿和随机崩溃：随机卡顿通过 1 秒计算负载模拟主线程性能问题，并用 Sentry transaction 和 span 包裹，随机崩溃会在上报上下文后抛出未捕获异常。
+- 贪吃蛇转向、吃食物、奖励出现、撞墙、撞到自身和返回：记录操作链路、分数、蛇身长度和失败原因；奖励出现时会低概率触发 1 秒随机卡顿，累计前进步数为 2 的倍数时才会参与低概率随机崩溃。
 
 诊断场景提供以下按钮，用于补齐无法稳定通过真实玩法触发的能力：
 
@@ -61,12 +61,13 @@
 建议人工验证顺序：
 
 1. 在 Editor Play 模式执行一次“登录失败、登录成功、进入打地鼠、命中红点、游戏结束、返回模式选择”，检查 Sentry 后台是否出现用户、标签、上下文、面包屑、日志、指标和性能数据。
-2. 在打地鼠中连续命中红点，观察是否触发 1 秒随机卡顿或随机崩溃；卡顿事件会记录 `whack_a_mole.random_stall`、`whack_a_mole.cpu_stall` 和 `whack_a_mole.stall_duration`，并能在 Sentry Performance 中查看对应 transaction 和 span，崩溃事件会记录 `whack_a_mole.random_crash` 以及崩溃前分数。
-3. 进入“哨兵测试”，依次点击非破坏性按钮，检查 Sentry Issues、Logs、Metrics 和 Performance 页面。
-4. 断网后点击“断网缓存事件”，恢复网络并重启游戏，检查事件是否补发。
-5. 在 Android 真机点击“主线程阻塞”，检查是否出现 ANR 或相关卡顿事件。
-6. 在 Windows 或 Android 内部包点击“原生崩溃”，重启后检查 native crash 和 Release Health。
-7. IL2CPP 构建后触发异常或崩溃，检查堆栈方法名和行号是否可读。
+2. 在打地鼠中连续命中红点，观察是否触发 1 秒随机卡顿或随机崩溃；卡顿事件会记录 `whack_a_mole.random_stall`、`whack_a_mole.reward_appeared` 和 `whack_a_mole.stall_duration`，并能在 Sentry Performance 中查看对应 transaction 和 span，崩溃事件会记录 `whack_a_mole.random_crash` 以及崩溃前分数。
+3. 在贪吃蛇中连续移动和吃食物，观察是否触发蛇专用随机卡顿或随机崩溃；卡顿事件会记录 `snake.random_stall`、`snake.reward_appeared` 和 `snake.stall_duration`，崩溃事件只会在累计前进步数为 2 的倍数时参与低概率触发，并记录 `snake.random_crash`、分数、蛇身长度和前进步数。
+4. 进入“哨兵测试”，依次点击非破坏性按钮，检查 Sentry Issues、Logs、Metrics 和 Performance 页面。
+5. 断网后点击“断网缓存事件”，恢复网络并重启游戏，检查事件是否补发。
+6. 在 Android 真机点击“主线程阻塞”，检查是否出现 ANR 或相关卡顿事件。
+7. 在 Windows 或 Android 内部包点击“原生崩溃”，重启后检查 native crash 和 Release Health。
+8. IL2CPP 构建后触发异常或崩溃，检查堆栈方法名和行号是否可读。
 
 ## Editor 预览
 

@@ -86,8 +86,27 @@ namespace SentryGame.Tests.EditMode
             Assert.That(sink.Distributions, Does.Contain(SentryFeatureNames.Metrics.WhackAMoleStallDuration));
             Assert.That(sink.CpuTraceDurations, Does.Contain(350));
             Assert.That(sink.CpuTraceTransactions, Does.Contain(SentryFeatureNames.Transactions.WhackAMoleRandomStall));
-            Assert.That(sink.CpuTraceSpans, Does.Contain(SentryFeatureNames.Spans.WhackAMoleCpuStall));
+            Assert.That(sink.CpuTraceSpans, Does.Contain(SentryFeatureNames.Spans.WhackAMoleRewardAppeared));
+            Assert.That(sink.CpuTraceDescriptions, Does.Contain("奖励出现了"));
             Assert.That(sink.Contexts, Does.Contain(SentryFeatureNames.Contexts.WhackAMole));
+        }
+
+        [Test]
+        public void SnakeRandomStallRecordsSnakeTelemetryAndRunsRewardTrace()
+        {
+            var sink = (RecordingSentryTelemetrySink)SentryTelemetryService.Sink;
+
+            SentryTelemetryService.RecordSnakeRandomStall(1000, 4, 5);
+
+            Assert.That(sink.Breadcrumbs, Does.Contain("snake.random_stall"));
+            Assert.That(sink.Metrics, Does.Contain(SentryFeatureNames.Metrics.SnakeRandomStall));
+            Assert.That(sink.Distributions, Does.Contain(SentryFeatureNames.Metrics.SnakeStallDuration));
+            Assert.That(sink.CpuTraceDurations, Does.Contain(1000));
+            Assert.That(sink.CpuTraceTransactions, Does.Contain(SentryFeatureNames.Transactions.SnakeRandomStall));
+            Assert.That(sink.CpuTraceSpans, Does.Contain(SentryFeatureNames.Spans.SnakeRewardAppeared));
+            Assert.That(sink.CpuTraceDescriptions, Does.Contain("奖励出现了"));
+            Assert.That(sink.Tags, Does.Contain("game_mode=snake"));
+            Assert.That(sink.Contexts, Does.Contain(SentryFeatureNames.Contexts.Snake));
         }
 
         [Test]
@@ -101,6 +120,20 @@ namespace SentryGame.Tests.EditMode
             Assert.That(sink.Metrics, Does.Contain(SentryFeatureNames.Metrics.WhackAMoleRandomCrash));
             Assert.That(sink.Exceptions, Does.Contain("打地鼠随机崩溃：mole_hit"));
             Assert.That(sink.Contexts, Does.Contain(SentryFeatureNames.Contexts.WhackAMole));
+        }
+
+        [Test]
+        public void SnakeRandomCrashRecordsSnakeTelemetryAndCapturesException()
+        {
+            var sink = (RecordingSentryTelemetrySink)SentryTelemetryService.Sink;
+
+            Assert.Throws<System.InvalidOperationException>(() => SentryTelemetryService.RecordSnakeRandomCrash(6, 7, 8, "even_move"));
+
+            Assert.That(sink.Breadcrumbs, Does.Contain("snake.random_crash"));
+            Assert.That(sink.Metrics, Does.Contain(SentryFeatureNames.Metrics.SnakeRandomCrash));
+            Assert.That(sink.Exceptions, Does.Contain("贪吃蛇随机崩溃：even_move"));
+            Assert.That(sink.Tags, Does.Contain("game_mode=snake"));
+            Assert.That(sink.Contexts, Does.Contain(SentryFeatureNames.Contexts.Snake));
         }
 
         [Test]
@@ -137,6 +170,7 @@ namespace SentryGame.Tests.EditMode
             public readonly List<int> CpuTraceDurations = new List<int>();
             public readonly List<string> CpuTraceTransactions = new List<string>();
             public readonly List<string> CpuTraceSpans = new List<string>();
+            public readonly List<string> CpuTraceDescriptions = new List<string>();
             public readonly List<string> Exceptions = new List<string>();
 
             public void AddBreadcrumb(string name, string category, Dictionary<string, string> data)
@@ -185,11 +219,12 @@ namespace SentryGame.Tests.EditMode
                 Logs.Add(id);
             }
 
-            public void RunCpuStallTrace(int milliseconds, string transactionName, string spanName, Dictionary<string, string> tags, string contextName, object context)
+            public void RunCpuStallTrace(int milliseconds, string transactionName, string spanName, string spanDescription, Dictionary<string, string> tags, string contextName, object context)
             {
                 CpuTraceDurations.Add(milliseconds);
                 CpuTraceTransactions.Add(transactionName);
                 CpuTraceSpans.Add(spanName);
+                CpuTraceDescriptions.Add(spanDescription);
             }
 
             public void CaptureException(System.Exception exception, Dictionary<string, string> tags, string contextName, object context)

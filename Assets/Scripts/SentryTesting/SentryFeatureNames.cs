@@ -29,6 +29,9 @@ namespace SentryGame.SentryTesting
             public const string WhackAMoleStallDuration = "whack_a_mole.stall_duration";
             public const string WhackAMoleRandomCrash = "whack_a_mole.random_crash";
             public const string SnakeFoodEaten = "snake.food_eaten";
+            public const string SnakeRandomStall = "snake.random_stall";
+            public const string SnakeStallDuration = "snake.stall_duration";
+            public const string SnakeRandomCrash = "snake.random_crash";
             public const string GameScore = "game.score";
             public const string DiagnosticsButtonClick = "diagnostics.button_click";
         }
@@ -37,11 +40,13 @@ namespace SentryGame.SentryTesting
         {
             public const string ManualDiagnostics = "diagnostics.manual_transaction";
             public const string WhackAMoleRandomStall = "whack_a_mole.random_stall";
+            public const string SnakeRandomStall = "snake.random_stall";
         }
 
         public static class Spans
         {
-            public const string WhackAMoleCpuStall = "whack_a_mole.cpu_stall";
+            public const string WhackAMoleRewardAppeared = "whack_a_mole.reward_appeared";
+            public const string SnakeRewardAppeared = "snake.reward_appeared";
         }
 
         public static class Diagnostics
