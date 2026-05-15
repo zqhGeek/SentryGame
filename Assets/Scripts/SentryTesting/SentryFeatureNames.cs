@@ -23,6 +23,11 @@ namespace SentryGame.SentryTesting
             public const string LoginFailure = "login.failure";
             public const string MoleHit = "mole.hit";
             public const string MoleMissed = "mole.missed";
+            public const string WhackAMoleEntered = "whack_a_mole.enter";
+            public const string WhackAMoleExited = "whack_a_mole.exit";
+            public const string WhackAMoleRandomStall = "whack_a_mole.random_stall";
+            public const string WhackAMoleStallDuration = "whack_a_mole.stall_duration";
+            public const string WhackAMoleRandomCrash = "whack_a_mole.random_crash";
             public const string SnakeFoodEaten = "snake.food_eaten";
             public const string GameScore = "game.score";
             public const string DiagnosticsButtonClick = "diagnostics.button_click";

@@ -10,6 +10,9 @@ namespace SentryGame.UI
     {
         private const int InitialScore = 5;
         private const float MoleLifeTime = 1.2f;
+        private const float RandomStallProbability = 0.08f;
+        private const float RandomCrashProbability = 0.03f;
+        private const int RandomStallMilliseconds = 1000;
 
         [SerializeField] private Text scoreText = null;
         [SerializeField] private Text statusText = null;
@@ -44,11 +47,13 @@ namespace SentryGame.UI
 
         private void Start()
         {
+            SentryTelemetryService.RecordWhackAMoleEntered(InitialScore);
             RestartGame();
         }
 
         private void Update()
         {
+            // 推进地鼠生命周期，并在漏点、结束和下一只地鼠生成时同步玩法状态。
             if (model == null || model.State == GameState.GameOver)
             {
                 return;
@@ -77,6 +82,7 @@ namespace SentryGame.UI
 
         public void HitMole()
         {
+            // 处理玩家命中红点后的分数、埋点、随机性能问题和下一只地鼠生成。
             if (model == null)
             {
                 return;
@@ -87,6 +93,8 @@ namespace SentryGame.UI
             if (model.Score > previousScore)
             {
                 SentryTelemetryService.RecordMoleHit(model.Score);
+                TryTriggerRandomStall();
+                TryTriggerRandomCrash();
             }
 
             if (model.State == GameState.Running)
@@ -99,6 +107,7 @@ namespace SentryGame.UI
 
         public void ReturnToModeSelect()
         {
+            SentryTelemetryService.RecordWhackAMoleExited(model == null ? 0 : model.Score, "back_button");
             SentryTelemetryService.RecordModeSelected("return", GameSceneNames.ModeSelectScene);
             SceneLoader.LoadScene(GameSceneNames.ModeSelectScene);
         }
@@ -110,6 +119,22 @@ namespace SentryGame.UI
             SentryTelemetryService.RecordModeSelected("whack_a_mole_restart", GameSceneNames.WhackAMoleScene);
             SpawnMole();
             RefreshView();
+        }
+
+        private void TryTriggerRandomStall()
+        {
+            if (model != null && Random.value < RandomStallProbability)
+            {
+                SentryTelemetryService.RecordWhackAMoleRandomStall(RandomStallMilliseconds, model.Score);
+            }
+        }
+
+        private void TryTriggerRandomCrash()
+        {
+            if (model != null && Random.value < RandomCrashProbability)
+            {
+                SentryTelemetryService.RecordWhackAMoleRandomCrash(model.Score, "mole_hit");
+            }
         }
 
         private void RecordGameOverOnce(string reason)

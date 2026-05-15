@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using SentryGame.UI;
+using System.Reflection;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
@@ -21,12 +22,29 @@ namespace SentryGame.Tests.EditMode
         {
             // 创建控制器触发运行时 UI 补齐，再验证关键控件没有越出竖屏参考画布。
             var controllerObject = new GameObject("WhackAMoleControllerUnderTest");
-            controllerObject.AddComponent<WhackAMoleSceneController>();
+            var controller = controllerObject.AddComponent<WhackAMoleSceneController>();
+            InvokeAwake(controller);
 
             AssertInsidePortraitCanvas("ScorePanel");
             AssertInsidePortraitCanvas("ScoreText");
             AssertInsidePortraitCanvas("重新开始");
             AssertInsidePortraitCanvas("返回");
+        }
+
+        [Test]
+        public void RandomStallDurationIsOneSecond()
+        {
+            var field = typeof(WhackAMoleSceneController).GetField("RandomStallMilliseconds", BindingFlags.Static | BindingFlags.NonPublic);
+
+            Assert.IsNotNull(field, "打地鼠随机卡顿时长常量不存在");
+            Assert.That(field.GetRawConstantValue(), Is.EqualTo(1000));
+        }
+
+        private static void InvokeAwake(WhackAMoleSceneController controller)
+        {
+            typeof(WhackAMoleSceneController)
+                .GetMethod("Awake", BindingFlags.Instance | BindingFlags.NonPublic)
+                .Invoke(controller, null);
         }
 
         private static void AssertInsidePortraitCanvas(string objectName)

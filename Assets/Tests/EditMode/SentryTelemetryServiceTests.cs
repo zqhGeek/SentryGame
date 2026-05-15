@@ -59,6 +59,49 @@ namespace SentryGame.Tests.EditMode
         }
 
         [Test]
+        public void WhackAMoleLifecycleRecordsEnterAndExitTelemetry()
+        {
+            var sink = (RecordingSentryTelemetrySink)SentryTelemetryService.Sink;
+
+            SentryTelemetryService.RecordWhackAMoleEntered(5);
+            SentryTelemetryService.RecordWhackAMoleExited(7, "back_button");
+
+            Assert.That(sink.Breadcrumbs, Does.Contain("whack_a_mole.enter"));
+            Assert.That(sink.Breadcrumbs, Does.Contain("whack_a_mole.exit"));
+            Assert.That(sink.Metrics, Does.Contain(SentryFeatureNames.Metrics.WhackAMoleEntered));
+            Assert.That(sink.Metrics, Does.Contain(SentryFeatureNames.Metrics.WhackAMoleExited));
+            Assert.That(sink.Tags, Does.Contain("game_mode=whack_a_mole"));
+            Assert.That(sink.Contexts, Does.Contain(SentryFeatureNames.Contexts.WhackAMole));
+        }
+
+        [Test]
+        public void WhackAMoleRandomStallRecordsTelemetryAndBlocksMainThread()
+        {
+            var sink = (RecordingSentryTelemetrySink)SentryTelemetryService.Sink;
+
+            SentryTelemetryService.RecordWhackAMoleRandomStall(350, 8);
+
+            Assert.That(sink.Breadcrumbs, Does.Contain("whack_a_mole.random_stall"));
+            Assert.That(sink.Metrics, Does.Contain(SentryFeatureNames.Metrics.WhackAMoleRandomStall));
+            Assert.That(sink.Distributions, Does.Contain(SentryFeatureNames.Metrics.WhackAMoleStallDuration));
+            Assert.That(sink.BlockDurations, Does.Contain(350));
+            Assert.That(sink.Contexts, Does.Contain(SentryFeatureNames.Contexts.WhackAMole));
+        }
+
+        [Test]
+        public void WhackAMoleRandomCrashRecordsTelemetryAndCapturesException()
+        {
+            var sink = (RecordingSentryTelemetrySink)SentryTelemetryService.Sink;
+
+            Assert.Throws<System.InvalidOperationException>(() => SentryTelemetryService.RecordWhackAMoleRandomCrash(9, "mole_hit"));
+
+            Assert.That(sink.Breadcrumbs, Does.Contain("whack_a_mole.random_crash"));
+            Assert.That(sink.Metrics, Does.Contain(SentryFeatureNames.Metrics.WhackAMoleRandomCrash));
+            Assert.That(sink.Exceptions, Does.Contain("打地鼠随机崩溃：mole_hit"));
+            Assert.That(sink.Contexts, Does.Contain(SentryFeatureNames.Contexts.WhackAMole));
+        }
+
+        [Test]
         public void DiagnosticsCatalogContainsDestructiveAndNonDestructiveCases()
         {
             var cases = SentryTelemetryService.GetDiagnosticCases().Select(testCase => testCase.Id).ToArray();
@@ -85,9 +128,12 @@ namespace SentryGame.Tests.EditMode
             public readonly List<string> Breadcrumbs = new List<string>();
             public readonly List<string> Logs = new List<string>();
             public readonly List<string> Metrics = new List<string>();
+            public readonly List<string> Distributions = new List<string>();
             public readonly List<string> UserIds = new List<string>();
             public readonly List<string> Tags = new List<string>();
             public readonly List<string> Contexts = new List<string>();
+            public readonly List<int> BlockDurations = new List<int>();
+            public readonly List<string> Exceptions = new List<string>();
 
             public void AddBreadcrumb(string name, string category, Dictionary<string, string> data)
             {
@@ -127,11 +173,22 @@ namespace SentryGame.Tests.EditMode
             public void EmitDistribution(string name, double value, Dictionary<string, string> tags)
             {
                 Metrics.Add(name);
+                Distributions.Add(name);
             }
 
             public void RunDiagnosticCase(string id)
             {
                 Logs.Add(id);
+            }
+
+            public void BlockMainThread(int milliseconds)
+            {
+                BlockDurations.Add(milliseconds);
+            }
+
+            public void CaptureException(System.Exception exception, Dictionary<string, string> tags, string contextName, object context)
+            {
+                Exceptions.Add(exception.Message);
             }
         }
     }

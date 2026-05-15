@@ -28,6 +28,16 @@ namespace SentryGame.SentryTesting
             Debug.Log(message);
         }
 
+        public void CaptureException(Exception exception, Dictionary<string, string> tags, string contextName, object context)
+        {
+            SentrySdk.CaptureException(exception, scope =>
+            {
+                ApplyTags(scope, tags);
+                scope.Contexts[contextName] = context;
+            });
+            Debug.LogException(exception);
+        }
+
         public void SetContext(string name, object value)
         {
             SentrySdk.ConfigureScope(scope => scope.Contexts[name] = value);
@@ -63,6 +73,11 @@ namespace SentryGame.SentryTesting
         public void EmitDistribution(string name, double value, Dictionary<string, string> tags)
         {
             SentrySdk.Metrics.EmitDistribution(name, value);
+        }
+
+        public void BlockMainThread(int milliseconds)
+        {
+            Thread.Sleep(Mathf.Max(1, milliseconds));
         }
 
         public void RunDiagnosticCase(string id)

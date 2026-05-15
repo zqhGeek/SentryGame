@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(adb devices *)",
+      "Bash(where Unity)",
+      "Read(//c/Program Files/Unity/Hub/**)",
+      "Read(//f/Unity/**)",
+      "Bash(F:/Unity/6000.3.9f1/Editor/Unity.exe *)",
+      "Bash(adb install *)",
+      "Bash(adb shell *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "WebFetch(domain:docs.sentry.io)",
+      "mcp__plugin_everything-claude-code_exa__web_search_exa"
+    ]
+  }
+}

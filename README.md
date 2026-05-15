@@ -34,7 +34,8 @@
 - 登录失败：记录面包屑、日志和 `login.failure` 指标。
 - 登录成功：设置测试用户、登录上下文和当前场景标签。
 - 模式选择：记录目标玩法、目标场景和场景跳转面包屑。
-- 打地鼠命中、漏点、游戏结束和重开：记录指标、分数和失败原因。
+- 打地鼠进入、退出、命中、漏点、游戏结束和重开：记录指标、分数、场景、上下文和失败原因。
+- 打地鼠命中红点后会低概率触发真实玩法内的随机卡顿和随机崩溃：随机卡顿通过阻塞主线程 1 秒模拟性能问题，随机崩溃会在上报上下文后抛出未捕获异常。
 - 贪吃蛇转向、吃食物、撞墙、撞到自身和返回：记录操作链路、分数、蛇身长度和失败原因。
 
 诊断场景提供以下按钮，用于补齐无法稳定通过真实玩法触发的能力：
@@ -59,12 +60,13 @@
 
 建议人工验证顺序：
 
-1. 在 Editor Play 模式执行一次“登录失败、登录成功、进入玩法、游戏结束、返回模式选择”，检查 Sentry 后台是否出现用户、标签、上下文、面包屑、日志、指标和性能数据。
-2. 进入“哨兵测试”，依次点击非破坏性按钮，检查 Sentry Issues、Logs、Metrics 和 Performance 页面。
-3. 断网后点击“断网缓存事件”，恢复网络并重启游戏，检查事件是否补发。
-4. 在 Android 真机点击“主线程阻塞”，检查是否出现 ANR 或相关卡顿事件。
-5. 在 Windows 或 Android 内部包点击“原生崩溃”，重启后检查 native crash 和 Release Health。
-6. IL2CPP 构建后触发异常或崩溃，检查堆栈方法名和行号是否可读。
+1. 在 Editor Play 模式执行一次“登录失败、登录成功、进入打地鼠、命中红点、游戏结束、返回模式选择”，检查 Sentry 后台是否出现用户、标签、上下文、面包屑、日志、指标和性能数据。
+2. 在打地鼠中连续命中红点，观察是否触发 1 秒随机卡顿或随机崩溃；卡顿事件会记录 `whack_a_mole.random_stall` 和 `whack_a_mole.stall_duration`，崩溃事件会记录 `whack_a_mole.random_crash` 以及崩溃前分数。
+3. 进入“哨兵测试”，依次点击非破坏性按钮，检查 Sentry Issues、Logs、Metrics 和 Performance 页面。
+4. 断网后点击“断网缓存事件”，恢复网络并重启游戏，检查事件是否补发。
+5. 在 Android 真机点击“主线程阻塞”，检查是否出现 ANR 或相关卡顿事件。
+6. 在 Windows 或 Android 内部包点击“原生崩溃”，重启后检查 native crash 和 Release Health。
+7. IL2CPP 构建后触发异常或崩溃，检查堆栈方法名和行号是否可读。
 
 ## Editor 预览
 
@@ -94,6 +96,22 @@ Android 打包需要安装 Unity Android Build Support，并配置可用的 Andr
 
 ```powershell
 & "F:\Unity\6000.3.9f1\Editor\Unity.exe" -batchmode -quit -projectPath "F:\UnityProject\SentryGame" -buildTarget Android -executeMethod SentryGame.Editor.SentryGameAndroidBuilder.BuildApk -logFile "F:\Caches\SentryGame\Builds\Android\android-build.log"
+```
+
+如果需要在 PowerShell 脚本或 CI 中明确阻塞等待 Android 编译完成，并把 Unity 退出码传递给外层流程，可以使用以下命令：
+
+```powershell
+$unity = "F:\Unity\6000.3.9f1\Editor\Unity.exe"
+$arguments = @(
+    "-batchmode",
+    "-quit",
+    "-projectPath", "F:\UnityProject\SentryGame",
+    "-buildTarget", "Android",
+    "-executeMethod", "SentryGame.Editor.SentryGameAndroidBuilder.BuildApk",
+    "-logFile", "F:\Caches\SentryGame\Builds\Android\android-build.log"
+)
+$process = Start-Process -FilePath $unity -ArgumentList $arguments -Wait -PassThru
+exit $process.ExitCode
 ```
 
 ## 自动化测试

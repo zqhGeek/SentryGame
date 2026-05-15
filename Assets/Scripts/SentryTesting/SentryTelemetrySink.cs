@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace SentryGame.SentryTesting
@@ -7,6 +8,8 @@ namespace SentryGame.SentryTesting
         void AddBreadcrumb(string name, string category, Dictionary<string, string> data);
 
         void CaptureMessage(string message, Dictionary<string, string> tags, string contextName, object context);
+
+        void CaptureException(Exception exception, Dictionary<string, string> tags, string contextName, object context);
 
         void SetContext(string name, object value);
 
@@ -19,6 +22,8 @@ namespace SentryGame.SentryTesting
         void EmitGauge(string name, double value, Dictionary<string, string> tags);
 
         void EmitDistribution(string name, double value, Dictionary<string, string> tags);
+
+        void BlockMainThread(int milliseconds);
 
         void RunDiagnosticCase(string id);
     }

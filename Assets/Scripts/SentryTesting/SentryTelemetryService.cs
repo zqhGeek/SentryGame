@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace SentryGame.SentryTesting
@@ -62,6 +63,61 @@ namespace SentryGame.SentryTesting
             Sink.AddBreadcrumb("mole.missed", "gameplay", Tag("score", score.ToString()));
             Sink.EmitCounter(SentryFeatureNames.Metrics.MoleMissed, 1, Tag("game_mode", "whack_a_mole"));
             Sink.EmitGauge(SentryFeatureNames.Metrics.GameScore, score, Tag("game_mode", "whack_a_mole"));
+        }
+
+        public static void RecordWhackAMoleEntered(int initialScore)
+        {
+            Sink.SetTag(SentryFeatureNames.Tags.GameMode, "whack_a_mole");
+            Sink.SetTag(SentryFeatureNames.Tags.Scene, "WhackAMoleScene");
+            Sink.SetContext(SentryFeatureNames.Contexts.WhackAMole, new WhackAMoleLifecycleContext(initialScore, "enter"));
+            Sink.AddBreadcrumb("whack_a_mole.enter", "gameplay", Tag("initial_score", initialScore.ToString()));
+            Sink.EmitCounter(SentryFeatureNames.Metrics.WhackAMoleEntered, 1, Tag("game_mode", "whack_a_mole"));
+            Sink.EmitGauge(SentryFeatureNames.Metrics.GameScore, initialScore, Tag("game_mode", "whack_a_mole"));
+        }
+
+        public static void RecordWhackAMoleExited(int finalScore, string reason)
+        {
+            // 记录离开打地鼠时的最终状态，方便在 Sentry 中串联完整玩法路径。
+            Sink.SetTag(SentryFeatureNames.Tags.GameMode, "whack_a_mole");
+            Sink.SetTag(SentryFeatureNames.Tags.FailureReason, reason);
+            Sink.SetContext(SentryFeatureNames.Contexts.WhackAMole, new WhackAMoleLifecycleContext(finalScore, reason));
+            Sink.AddBreadcrumb("whack_a_mole.exit", "gameplay", new Dictionary<string, string>
+            {
+                { "final_score", finalScore.ToString() },
+                { "reason", reason }
+            });
+            Sink.EmitCounter(SentryFeatureNames.Metrics.WhackAMoleExited, 1, Tag("game_mode", "whack_a_mole"));
+            Sink.EmitGauge(SentryFeatureNames.Metrics.GameScore, finalScore, Tag("game_mode", "whack_a_mole"));
+        }
+
+        public static void RecordWhackAMoleRandomStall(int durationMilliseconds, int score)
+        {
+            // 上报真实玩法中的随机卡顿，并通过 sink 阻塞主线程模拟性能问题。
+            Sink.SetContext(SentryFeatureNames.Contexts.WhackAMole, new WhackAMoleFaultContext(score, "random_stall", durationMilliseconds));
+            Sink.AddBreadcrumb("whack_a_mole.random_stall", "performance", new Dictionary<string, string>
+            {
+                { "score", score.ToString() },
+                { "duration_ms", durationMilliseconds.ToString() }
+            });
+            Sink.EmitCounter(SentryFeatureNames.Metrics.WhackAMoleRandomStall, 1, Tag("game_mode", "whack_a_mole"));
+            Sink.EmitDistribution(SentryFeatureNames.Metrics.WhackAMoleStallDuration, durationMilliseconds, Tag("game_mode", "whack_a_mole"));
+            Sink.BlockMainThread(durationMilliseconds);
+        }
+
+        public static void RecordWhackAMoleRandomCrash(int score, string reason)
+        {
+            // 先把崩溃前上下文写入 Sentry，再抛出未捕获异常模拟真实崩溃。
+            var exception = new InvalidOperationException($"打地鼠随机崩溃：{reason}");
+            var context = new WhackAMoleFaultContext(score, reason, 0);
+            Sink.SetContext(SentryFeatureNames.Contexts.WhackAMole, context);
+            Sink.AddBreadcrumb("whack_a_mole.random_crash", "error", new Dictionary<string, string>
+            {
+                { "score", score.ToString() },
+                { "reason", reason }
+            });
+            Sink.EmitCounter(SentryFeatureNames.Metrics.WhackAMoleRandomCrash, 1, Tag("game_mode", "whack_a_mole"));
+            Sink.CaptureException(exception, Tag("game_mode", "whack_a_mole"), SentryFeatureNames.Contexts.WhackAMole, context);
+            throw exception;
         }
 
         public static void RecordSnakeFoodEaten(int score, int length)
@@ -158,6 +214,35 @@ namespace SentryGame.SentryTesting
             public string Reason { get; }
         }
 
+        private readonly struct WhackAMoleLifecycleContext
+        {
+            public WhackAMoleLifecycleContext(int score, string reason)
+            {
+                Score = score;
+                Reason = reason;
+            }
+
+            public int Score { get; }
+
+            public string Reason { get; }
+        }
+
+        private readonly struct WhackAMoleFaultContext
+        {
+            public WhackAMoleFaultContext(int score, string reason, int durationMilliseconds)
+            {
+                Score = score;
+                Reason = reason;
+                DurationMilliseconds = durationMilliseconds;
+            }
+
+            public int Score { get; }
+
+            public string Reason { get; }
+
+            public int DurationMilliseconds { get; }
+        }
+
         private readonly struct SnakeGameOverContext
         {
             public SnakeGameOverContext(int finalScore, int length, string reason)
@@ -184,6 +269,10 @@ namespace SentryGame.SentryTesting
             {
             }
 
+            public void CaptureException(Exception exception, Dictionary<string, string> tags, string contextName, object context)
+            {
+            }
+
             public void SetContext(string name, object value)
             {
             }
@@ -205,6 +294,10 @@ namespace SentryGame.SentryTesting
             }
 
             public void EmitDistribution(string name, double value, Dictionary<string, string> tags)
+            {
+            }
+
+            public void BlockMainThread(int milliseconds)
             {
             }
 
