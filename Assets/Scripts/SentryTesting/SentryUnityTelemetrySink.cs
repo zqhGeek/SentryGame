@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Sentry;
 using Sentry.Unity;
 using UnityEngine;
@@ -128,7 +129,7 @@ namespace SentryGame.SentryTesting
                     SentrySdk.CaptureMessage("Sentry 离线缓存诊断");
                     break;
                 case SentryFeatureNames.Diagnostics.BlockMainThread:
-                    Thread.Sleep(6000);
+                    Task.Run(() => Thread.Sleep(6000));
                     break;
                 case SentryFeatureNames.Diagnostics.NativeCrash:
                     Utils.ForceCrash(ForcedCrashCategory.AccessViolation);
