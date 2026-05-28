@@ -44,6 +44,11 @@ namespace SentryGame.SentryTesting
             public const string WhackAMoleCpuStall = "whack_a_mole.cpu_stall";
         }
 
+        public static class GameModes
+        {
+            public const string SentryDiagnostics = "sentry_diagnostics";
+        }
+
         public static class Diagnostics
         {
             public const string CaptureMessage = "capture_message";
