@@ -58,6 +58,7 @@ namespace SentryGame.UI
             stepTimer = 0f;
             var previousScore = model.Score;
             model.Step();
+            // 贪吃蛇不包含随机卡顿或随机崩溃逻辑，每次移动只推进游戏状态。
             if (model.Score > previousScore)
             {
                 SentryTelemetryService.RecordSnakeFoodEaten(model.Score, model.Body.Count);
